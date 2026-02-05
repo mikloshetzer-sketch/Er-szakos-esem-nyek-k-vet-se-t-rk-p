@@ -35,9 +35,9 @@ font-size:13px;line-height:1.4;
 <div class="title">OSINT TERROR MAP</div>
 
 <div class="panel">
-<b>LIVE INCIDENTS</b><br>
-● System online<br>
-● Source: OSINT test<br>
+<b>REALTIME MONITOR</b><br>
+● Source: OSINT auto feed<br>
+● Mode: LIVE<br>
 </div>
 
 <div id="map"></div>
@@ -51,20 +51,32 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
 maxZoom:19
 }).addTo(map);
 
-/* ==== TESZT INCIDENT ==== */
-var marker = L.circleMarker([31.5,34.75],{
+/* ===== LOAD INCIDENTS ===== */
+fetch("incidents.json")
+.then(r=>r.json())
+.then(data=>{
+data.forEach(ev=>{
+
+let color="red";
+if(ev.type==="shooting") color="orange";
+if(ev.type==="bomb") color="yellow";
+
+var m=L.circleMarker([ev.lat,ev.lon],{
 radius:8,
-color:"red",
-fillColor:"red",
+color:color,
+fillColor:color,
 fillOpacity:0.9
 }).addTo(map);
 
-marker.bindPopup(
-"<b>OSINT INCIDENT</b><br>"+
-"Location: Gaza<br>"+
-"Type: Rocket fire<br>"+
-"Date: 2026"
+m.bindPopup(
+"<b>"+ev.title+"</b><br>"+
+ev.location+"<br>"+
+ev.date+"<br>"+
+"<a href='"+ev.source+"' target='_blank'>source</a>"
 );
+
+});
+});
 </script>
 
 </body>
