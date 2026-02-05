@@ -1,12 +1,9 @@
 [
   {
-    "id": "fallback",
-    "title": "Live feed temporary fallback (GDELT unavailable)",
-    "type": "attack",
-    "date": "2026-02-05",
-    "location": "Global",
-    "lat": 31.5,
-    "lon": 34.7,
-    "source": "https://www.gdeltproject.org/"
+    "title": "ERROR: Queries containing OR'd terms must be surrounded by ().",
+    "date": "2025-01-01",
+    "lat": 0.0,
+    "lon": 0.0,
+    "source": ""
   }
 ]

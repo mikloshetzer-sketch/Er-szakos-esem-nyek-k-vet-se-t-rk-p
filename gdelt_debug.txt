@@ -1,8 +1,4 @@
-GDELT response head (first 300 chars):
-Your query contained an OR clause that was too short or too long: terror OR terrorist OR bombing OR bomb OR explosion OR shooting OR gunman OR attack OR assassination OR keyphraseid:0 OR keyphraseid:1 OR keyphraseid:2\n
+{ "type": "FeatureCollection", "features": [
 
-URL:
-https://api.gdeltproject.org/api/v2/geo/geo?query=%28terror+OR+terrorist+OR+bombing+OR+bomb+OR+explosion+OR+shooting+OR+gunman+OR+attack+OR+assassination+OR+%22car+bomb%22+OR+%22suicide+bombing%22+OR+%22roadside+bomb%22%29&mode=geo&format=json&maxrecords=250&sort=datedesc&startdatetime=20250101000000&enddatetime=20260205144927
-
-JSON parse error:
-Expecting value: line 1 column 1 (char 0)
+{ "type": "Feature", "geometry": { "type": "Point", "coordinates": [0.0000, 0.0000] }, "properties": {  "name": "ERROR: Queries containing OR'd terms must be surrounded by ()." } }
+] }
