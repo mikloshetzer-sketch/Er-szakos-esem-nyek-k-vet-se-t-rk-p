@@ -1,0 +1,11 @@
+GDELT DOC API build debug
+UTC now: 2026-02-05T20:45:39.465991Z
+Query: (terror OR terrorism OR "bomb attack" OR bombing OR "suicide attack" OR "mass shooting" OR "gun attack" OR assassination OR "IED")
+Years attempted: [2025, 2026]
+Counts:
+  2025: 0 records
+  2026: 0 records
+
+Notes:
+- incidents.json only includes articles that have usable lat/lon in DOC API response.
+- If 2026 is 0, it can mean: no geocoded matches yet, or GDELT returns results without coordinates.
