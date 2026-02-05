@@ -1,1 +1,8 @@
-404: Not Found
+[
+{ "id":"16908", "date":"", "title":"Conflict event", "type":"attack", "lat":20, "lon":20, "location":"Global", "source":"https://news.google.com" },
+{ "id":"28648", "date":"", "title":"Conflict event", "type":"attack", "lat":20, "lon":20, "location":"Global", "source":"https://news.google.com" },
+{ "id":"10913", "date":"", "title":"Conflict event", "type":"attack", "lat":20, "lon":20, "location":"Global", "source":"https://news.google.com" },
+{ "id":"13214", "date":"", "title":"Conflict event", "type":"attack", "lat":20, "lon":20, "location":"Global", "source":"https://news.google.com" },
+{ "id":"26313", "date":"", "title":"Conflict event", "type":"attack", "lat":20, "lon":20, "location":"Global", "source":"https://news.google.com" },
+{ "id":"29444", "date":"", "title":"Conflict event", "type":"attack", "lat":20, "lon":20, "location":"Global", "source":"https://news.google.com" },
+{}]
