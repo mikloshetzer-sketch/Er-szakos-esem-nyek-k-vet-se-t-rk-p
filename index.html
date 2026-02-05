@@ -4,31 +4,46 @@
 <meta charset="UTF-8">
 <title>OSINT Terror Map</title>
 
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
 <style>
 body{
+    margin:0;
     background:#0b0f14;
-    color:#e6edf3;
+    color:white;
     font-family:Arial;
-    text-align:center;
-    padding-top:120px;
 }
-h1{
-    font-size:42px;
-    letter-spacing:2px;
+#map{
+    height:100vh;
 }
-p{
-    opacity:0.7;
-    margin-top:10px;
+.title{
+    position:absolute;
+    z-index:999;
+    top:20px;
+    left:50%;
+    transform:translateX(-50%);
+    color:white;
+    font-size:32px;
+    font-weight:bold;
+    letter-spacing:3px;
 }
 </style>
-
 </head>
 
 <body>
 
-<h1>OSINT TERROR MAP</h1>
-<p>Geopolitical & security incident monitor</p>
-<p>Projekt inicializálva...</p>
+<div class="title">OSINT TERROR MAP</div>
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+var map = L.map('map').setView([30,20], 2);
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: 'OSINT map'
+}).addTo(map);
+</script>
 
 </body>
 </html>
