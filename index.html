@@ -10,22 +10,56 @@
 body{
     margin:0;
     background:#0b0f14;
-    color:white;
+    color:#e6edf3;
     font-family:Arial;
 }
+
 #map{
     height:100vh;
 }
+
+/* felső cím */
 .title{
     position:absolute;
     z-index:999;
-    top:20px;
+    top:18px;
     left:50%;
     transform:translateX(-50%);
-    color:white;
-    font-size:32px;
-    font-weight:bold;
-    letter-spacing:3px;
+    color:#e6edf3;
+    font-size:30px;
+    font-weight:700;
+    letter-spacing:4px;
+    background:rgba(0,0,0,0.45);
+    padding:10px 18px;
+    border-radius:8px;
+    backdrop-filter: blur(6px);
+}
+
+/* oldalsó OSINT panel */
+.panel{
+    position:absolute;
+    z-index:999;
+    top:80px;
+    left:20px;
+    width:260px;
+    background:rgba(10,15,20,0.75);
+    padding:18px;
+    border-radius:10px;
+    backdrop-filter: blur(6px);
+    border:1px solid rgba(255,255,255,0.06);
+}
+
+.panel h3{
+    margin-top:0;
+    font-size:14px;
+    letter-spacing:2px;
+    opacity:0.7;
+}
+
+.status{
+    font-size:13px;
+    margin-top:8px;
+    opacity:0.8;
 }
 </style>
 </head>
@@ -33,17 +67,14 @@ body{
 <body>
 
 <div class="title">OSINT TERROR MAP</div>
+
+<div class="panel">
+<h3>LIVE MONITOR</h3>
+<div class="status">● System online</div>
+<div class="status">● Data stream: pending</div>
+<div class="status">● Region: GLOBAL</div>
+</div>
+
 <div id="map"></div>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
-<script>
-var map = L.map('map').setView([30,20], 2);
-
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: 'OSINT map'
-}).addTo(map);
-</script>
-
-</body>
-</html>
+<script s
