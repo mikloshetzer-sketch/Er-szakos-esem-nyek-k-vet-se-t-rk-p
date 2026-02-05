@@ -18,50 +18,49 @@ jobs:
           python << 'EOF'
           import json, urllib.request, urllib.parse, datetime
 
-          # Rövid, stabil GDELT query
-          query = "terror OR terrorist OR bombing OR explosion OR attack"
+          # ✅ GDELT-KOMPATIBILIS QUERY (zárójelezve!)
+          query = "(terror OR terrorist OR bombing OR explosion OR attack)"
 
-          url = "https://api.gdeltproject.org/api/v2/geo/geo?" + urllib.parse.urlencode({
+          params = {
               "query": query,
               "mode": "Point",
               "format": "GeoJSON",
               "maxrecords": "250"
-          })
+          }
 
-          print("URL:", url)
+          url = "https://api.gdeltproject.org/api/v2/geo/geo?" + urllib.parse.urlencode(params)
+          print("GDELT URL:", url)
 
           try:
               response = urllib.request.urlopen(url, timeout=30)
               raw = response.read().decode("utf-8")
 
-              # DEBUG fájl mentés
+              # DEBUG: mentsük a választ
               with open("gdelt_debug.txt", "w", encoding="utf-8") as f:
                   f.write(raw[:2000])
 
               data = json.loads(raw)
-
               incidents = []
 
-              if "features" in data:
-                  for item in data["features"]:
-                      props = item.get("properties", {})
-                      coords = item.get("geometry", {}).get("coordinates", [None, None])
+              for feature in data.get("features", []):
+                  props = feature.get("properties", {})
+                  geom = feature.get("geometry", {})
+                  coords = geom.get("coordinates", [])
 
-                      if coords and len(coords) == 2:
-                          incidents.append({
-                              "title": props.get("name", "Conflict event"),
-                              "date": props.get("sqlDate", "2025-01-01"),
-                              "lat": coords[1],
-                              "lon": coords[0],
-                              "source": props.get("url", "")
-                          })
+                  if len(coords) == 2:
+                      incidents.append({
+                          "title": props.get("name", "Conflict event"),
+                          "date": props.get("sqlDate", "2025-01-01"),
+                          "lat": coords[1],
+                          "lon": coords[0],
+                          "source": props.get("url", "")
+                      })
 
               print("Parsed events:", len(incidents))
 
-              # fallback ha GDELT nem ad adatot
-              if len(incidents) == 0:
+              if not incidents:
                   incidents = [{
-                      "title": "Live feed temporary fallback (GDELT)",
+                      "title": "GDELT empty response fallback",
                       "date": datetime.date.today().isoformat(),
                       "lat": 30,
                       "lon": 31,
@@ -80,5 +79,5 @@ jobs:
           git config user.name "osint-bot"
           git config user.email "actions@github.com"
           git add incidents.json gdelt_debug.txt
-          git commit -m "OSINT update (GDELT live feed)" || echo "No changes"
+          git commit -m "OSINT update (GDELT fixed query)" || echo "No changes"
           git push
