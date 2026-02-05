@@ -1,6 +1,11 @@
-{ "type": "FeatureCollection", "features": [
+GDELT DOC API build debug
+UTC now: 2026-02-05T19:38:53.539011Z
+Query: (terror OR terrorism OR "bomb attack" OR bombing OR "suicide attack" OR "mass shooting" OR "gun attack" OR assassination OR "IED")
+Years attempted: [2025, 2026]
+Counts:
+  2025: 0 records
+  2026: 0 records
 
-{ "type": "Feature", "properties": { "name": "Russia", "count": 3883, "shareimage": "", "html": "<a href=\"https://www.kaos911.com/html/41d799915.html\" title=\"10秒懂 !!\" target=\"_blank\">10秒懂 !!</a><br><br>" }, "geometry": { "type": "Point", "coordinates": [100.0000, 60.0000] } }
-,{ "type": "Feature", "properties": { "name": "Ukraine", "count": 2493, "shareimage": "https://aif-s3.aif.ru/images/044/955/7b6cd2d098f299462a2f4bed401e8aa3.webp", "html": "<a href=\"https://aif.ru/incidents/v-sumah-i-prigorode-harkova-progremeli-vzryvy\" title=\"В Сумах и пригороде Харькова прогремели взрывы\" target=\"_blank\">В Сумах и пригороде Харькова прогремели взрывы</a><br><br><a href=\"https://www.kaos911.com/html/41d799915.html\" title=\"10秒懂 !!\" target=\"_blank\">10秒懂 !!</a><br><br>" }, "geometry": { "type": "Point", "coordinates": [32.0000, 49.0000] } }
-,{ "type": "Feature", "properties": { "name": "Israel", "count": 2436, "shareimage": "https://image.chitra.live/api/v1/wps/19aaa79/6cae3a33-cf6c-401b-a44d-f4f2009f8846/0/ANI-20260205013455-600x315.jpg", "html": "<a href=\"http://www.middleeaststar.com/news/278849656/israeli-military-eliminates-terrorist-who-murdered-corporal-noa-marciano-in-captivity\" title=\"Israeli Military eliminates terrorist who murdered Corporal Noa Marciano in captivity\" target=\"_blank\">Israeli Military eliminates terrorist who murdered Corporal Noa Marciano in captivity</a><br><br>" }, "geometry": { "type": "Point", "coordinates": [34.7500, 31.5000] } }
-,{ "type": "Feature", "properties": { "name": "Iran", "count": 2048, "shareimage": "", "html": "<a href=\"https://www.derstandard.at/consent/tcf/story/3000000306963/ploetzlich-auf-der-terrorliste-nicht-nur-irans-revolutionsgarden-droht-ungemach\" title=\"Plötzlich auf der Terrorliste : Nicht nur Irans Revolutionsgarden droht Ungemach\" target=\"_blank\">Plötzlich auf der Terrorliste : Nicht nur Irans Revolutionsgarden droht Ungemach</a><br><br><a href=\
+Notes:
+- incidents.json only includes articles that have usable lat/lon in DOC API response.
+- If 2026 is 0, it can mean: no geocoded matches yet, or GDELT returns results without coordinates.
