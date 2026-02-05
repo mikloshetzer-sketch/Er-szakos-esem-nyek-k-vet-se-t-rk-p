@@ -2,82 +2,43 @@ name: OSINT Live Feed (GDELT FINAL)
 
 on:
   schedule:
-    - cron: "*/30 * * * *"
+    - cron: "13 * * * *"   # óránként (UTC). Ha percesebb kell, átírjuk később.
   workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   update:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Build incidents.json from GDELT
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Build incidents.json from GDELT DOC API
         run: |
-          python << 'EOF'
-          import json, urllib.request, urllib.parse, datetime
+          python scripts/build_incidents.py
 
-          query = "(terror OR terrorist OR bombing OR explosion OR attack)"
-
-          params = {
-              "query": query,
-              "mode": "Point",
-              "format": "GeoJSON",
-              "maxrecords": "250"
-          }
-
-          url = "https://api.gdeltproject.org/api/v2/geo/geo?" + urllib.parse.urlencode(params)
-          print("URL:", url)
-
-          try:
-              response = urllib.request.urlopen(url, timeout=30)
-              raw = response.read().decode("utf-8")
-
-              with open("gdelt_debug.txt","w",encoding="utf-8") as f:
-                  f.write(raw[:2000])
-
-              data = json.loads(raw)
-              incidents = []
-
-              for f in data.get("features", []):
-                  props = f.get("properties", {})
-                  geom = f.get("geometry", {})
-                  coords = geom.get("coordinates", [])
-
-                  if len(coords)==2:
-                      incidents.append({
-                          "title": props.get("name","Conflict event"),
-                          "date": props.get("sqlDate","2025-01-01"),
-                          "lat": coords[1],
-                          "lon": coords[0],
-                          "source": props.get("url","")
-                      })
-
-              print("Events:",len(incidents))
-
-              if not incidents:
-                  incidents=[{
-                      "title":"No events from GDELT",
-                      "date":datetime.date.today().isoformat(),
-                      "lat":30,
-                      "lon":31,
-                      "source":""
-                  }]
-
-              with open("incidents.json","w",encoding="utf-8") as f:
-                  json.dump(incidents,f,indent=2)
-
-          except Exception as e:
-              print("ERROR:",e)
-          EOF
-
-      - name: Commit and FORCE push
+      - name: Commit changes (if any)
         run: |
           git config user.name "osint-bot"
-          git config user.email "actions@github.com"
-          git add .
-          git commit -m "OSINT auto update" || echo "No changes"
-          git push origin main --force
+          git config user.email "osint-bot@users.noreply.github.com"
+          git add incidents.json gdelt_debug.txt
+          if git diff --cached --quiet; then
+            echo "No changes."
+            exit 0
+          fi
+          git commit -m "OSINT update (GDELT DOC)"
+
+      - name: Pull (rebase) then push
+        run: |
+          # Non-fast-forward ellen:
+          git pull --rebase origin main
+          git push origin main
