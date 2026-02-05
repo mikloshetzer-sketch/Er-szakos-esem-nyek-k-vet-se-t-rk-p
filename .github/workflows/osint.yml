@@ -2,7 +2,7 @@ name: OSINT Live Feed
 
 on:
   schedule:
-    - cron: "0 */6 * * *"
+    - cron: "15 */6 * * *"   # 6 óránként (UTC)
   workflow_dispatch:
 
 jobs:
@@ -11,24 +11,96 @@ jobs:
 
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - name: Fetch global conflict data
+      - name: Build incidents.json from GDELT GEO 2.1
         run: |
-          curl -o raw.csv "https://api.gdeltproject.org/api/v2/events/doc/doc?query=attack%20OR%20bomb%20OR%20terror%20OR%20riot&mode=ArtList&maxrecords=50&format=csv"
+          set -e
+          python - << 'PY'
+          import json, urllib.parse, urllib.request, datetime as dt
 
-      - name: Convert to JSON
-        run: |
-          echo "[" > incidents.json
-          tail -n +2 raw.csv | head -n 30 | while IFS=, read -r a b c d e f g h i j k l; do
-            echo "{ \"id\":\"$RANDOM\", \"date\":\"$b\", \"title\":\"Conflict event\", \"type\":\"attack\", \"lat\":20, \"lon\":20, \"location\":\"Global\", \"source\":\"https://news.google.com\" }," >> incidents.json
-          done
-          echo "{}]" >> incidents.json
+          # --- Query: terrorism/attack related, last 30 days; keep only from 2025+ in UI anyway ---
+          query = '(terror OR terrorist OR bombing OR bomb OR explosion OR shooting OR attack OR assassination OR "car bomb" OR "suicide bombing")'
+          params = {
+              "query": query,
+              "mode": "geo",
+              "format": "json",
+              "maxrecords": "250",
+              "sort": "datedesc"
+          }
+          url = "https://api.gdeltproject.org/api/v2/geo/geo?" + urllib.parse.urlencode(params)
+          data = json.loads(urllib.request.urlopen(url, timeout=60).read().decode("utf-8"))
 
-      - name: Commit update
+          out = []
+          features = data.get("features", [])
+          for i, f in enumerate(features[:250]):
+              p = f.get("properties", {}) or {}
+              g = f.get("geometry", {}) or {}
+              coords = (g.get("coordinates") or [None, None])
+              lon, lat = coords[0], coords[1]
+
+              # Skip if no coordinates
+              if lat is None or lon is None:
+                  continue
+
+              # GDELT uses "date" like "20250203153000" or similar; normalize to YYYY-MM-DD
+              raw_date = p.get("date") or p.get("seendate") or ""
+              date = ""
+              if raw_date and len(raw_date) >= 8:
+                  date = f"{raw_date[0:4]}-{raw_date[4:6]}-{raw_date[6:8]}"
+              else:
+                  date = dt.datetime.utcnow().strftime("%Y-%m-%d")
+
+              # Title / location / source
+              title = p.get("name") or p.get("topic") or p.get("shareimage") or "Conflict event"
+              location = p.get("location") or p.get("geoname") or p.get("country") or "Unknown"
+              source = p.get("url") or "https://www.gdeltproject.org/"
+
+              # Type tag (simple heuristic)
+              t = (p.get("theme") or "") + " " + (p.get("name") or "")
+              t = t.lower()
+              ev_type = "attack"
+              if "explos" in t or "bomb" in t:
+                  ev_type = "bomb"
+              elif "shoot" in t or "gun" in t:
+                  ev_type = "shooting"
+              elif "riot" in t:
+                  ev_type = "riot"
+
+              out.append({
+                  "id": f"gdelt-{i}",
+                  "date": date,
+                  "title": p.get("name") or "OSINT event",
+                  "type": ev_type,
+                  "lat": float(lat),
+                  "lon": float(lon),
+                  "location": location,
+                  "source": source
+              })
+
+          # Fallback: if empty, create 1 visible test point so map never goes blank
+          if not out:
+              out = [{
+                  "id":"fallback-001",
+                  "date":"2025-01-01",
+                  "title":"OSINT fallback test",
+                  "type":"attack",
+                  "lat":31.5,
+                  "lon":34.75,
+                  "location":"Gaza",
+                  "source":"https://www.gdeltproject.org/"
+              }]
+
+          with open("incidents.json", "w", encoding="utf-8") as f:
+              json.dump(out, f, ensure_ascii=False, indent=2)
+
+          print(f"Wrote {len(out)} incidents to incidents.json")
+          PY
+
+      - name: Commit and push
         run: |
-          git config --global user.name "osint-bot"
-          git config --global user.email "bot@osint.com"
+          git config user.name "osint-bot"
+          git config user.email "actions@users.noreply.github.com"
           git add incidents.json
-          git commit -m "live update"
+          git commit -m "osint: update incidents" || echo "No changes to commit"
           git push
