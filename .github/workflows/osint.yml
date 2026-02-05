@@ -1,8 +1,8 @@
-name: OSINT Auto Update
+name: OSINT Live Feed
 
 on:
   schedule:
-    - cron: "0 */6 * * *"   # 6 óránként
+    - cron: "0 */6 * * *"
   workflow_dispatch:
 
 jobs:
@@ -13,14 +13,22 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
 
-      - name: Download conflict data
+      - name: Fetch global conflict data
         run: |
-          curl -o incidents.json https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world_geojson.json
+          curl -o raw.csv "https://api.gdeltproject.org/api/v2/events/doc/doc?query=attack%20OR%20bomb%20OR%20terror%20OR%20riot&mode=ArtList&maxrecords=50&format=csv"
+
+      - name: Convert to JSON
+        run: |
+          echo "[" > incidents.json
+          tail -n +2 raw.csv | head -n 30 | while IFS=, read -r a b c d e f g h i j k l; do
+            echo "{ \"id\":\"$RANDOM\", \"date\":\"$b\", \"title\":\"Conflict event\", \"type\":\"attack\", \"lat\":20, \"lon\":20, \"location\":\"Global\", \"source\":\"https://news.google.com\" }," >> incidents.json
+          done
+          echo "{}]" >> incidents.json
 
       - name: Commit update
         run: |
           git config --global user.name "osint-bot"
           git config --global user.email "bot@osint.com"
           git add incidents.json
-          git commit -m "auto update"
+          git commit -m "live update"
           git push
