@@ -1,0 +1,26 @@
+name: OSINT Auto Update
+
+on:
+  schedule:
+    - cron: "0 */6 * * *"   # 6 óránként
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Download conflict data
+        run: |
+          curl -o incidents.json https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world_geojson.json
+
+      - name: Commit update
+        run: |
+          git config --global user.name "osint-bot"
+          git config --global user.email "bot@osint.com"
+          git add incidents.json
+          git commit -m "auto update"
+          git push
