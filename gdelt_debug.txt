@@ -1,5 +1,5 @@
 GDELT DOC API build debug
-UTC now: 2026-02-05T21:48:27.033390Z
+UTC now: 2026-02-05T23:01:31.895039Z
 Query: (terror OR terrorism OR "bomb attack" OR bombing OR "suicide attack" OR "mass shooting" OR "gun attack" OR assassination OR "IED")
 Years attempted: [2025, 2026]
 Counts:
