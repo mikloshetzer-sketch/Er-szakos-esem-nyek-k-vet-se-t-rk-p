@@ -1,94 +1,71 @@
 <!DOCTYPE html>
 <html lang="hu">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>OSINT Terror Map</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>OSINT Terror Map</title>
 
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 
-  <style>
-    html, body { height: 100%; margin: 0; background:#0b0f14; font-family: Arial; }
-    #map { height: 100vh; }
+<style>
+html,body{height:100%;margin:0;background:#0b0f14;font-family:Arial}
+#map{height:100vh}
 
-    .title{
-      position: fixed;
-      z-index: 9999;
-      top: 18px;
-      left: 50%;
-      transform: translateX(-50%);
-      color: #e6edf3;
-      font-size: 28px;
-      font-weight: 700;
-      letter-spacing: 4px;
-      background: rgba(0,0,0,0.55);
-      padding: 10px 16px;
-      border-radius: 10px;
-      border: 1px solid rgba(255,255,255,0.10);
-    }
+.title{
+position:fixed;z-index:9999;top:18px;left:50%;
+transform:translateX(-50%);
+color:#e6edf3;font-size:28px;font-weight:700;
+letter-spacing:4px;background:rgba(0,0,0,0.55);
+padding:10px 16px;border-radius:10px;
+border:1px solid rgba(255,255,255,0.10);
+}
 
-    .panel{
-      position: fixed;
-      z-index: 9999;
-      top: 78px;
-      left: 18px;
-      width: 280px;
-      color: #e6edf3;
-      background: rgba(0,0,0,0.55);
-      padding: 14px 16px;
-      border-radius: 12px;
-      border: 1px solid rgba(255,255,255,0.10);
-      font-size: 13px;
-      line-height: 1.4;
-    }
-
-    .err{
-      margin-top: 10px;
-      padding: 10px;
-      border-radius: 10px;
-      background: rgba(255, 80, 80, 0.12);
-      border: 1px solid rgba(255, 80, 80, 0.35);
-      display: none;
-      white-space: pre-wrap;
-    }
-  </style>
+.panel{
+position:fixed;z-index:9999;top:78px;left:18px;
+width:260px;color:#e6edf3;
+background:rgba(0,0,0,0.55);
+padding:14px 16px;border-radius:12px;
+border:1px solid rgba(255,255,255,0.10);
+font-size:13px;line-height:1.4;
+}
+</style>
 </head>
 <body>
 
-  <div class="title">OSINT TERROR MAP</div>
+<div class="title">OSINT TERROR MAP</div>
 
-  <div class="panel">
-    <div><b>LIVE MONITOR</b></div>
-    <div>• System online</div>
-    <div>• Basemap: OpenStreetMap (diagnostic)</div>
-    <div>• Ha ezt látod, a HTML rendben van</div>
-    <div class="err" id="errBox"></div>
-  </div>
+<div class="panel">
+<b>LIVE INCIDENTS</b><br>
+● System online<br>
+● Source: OSINT test<br>
+</div>
 
-  <div id="map"></div>
+<div id="map"></div>
 
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-  <script>
-    const errBox = document.getElementById("errBox");
-    function showErr(msg){
-      errBox.style.display = "block";
-      errBox.textContent = msg;
-    }
+<script>
+var map = L.map('map').setView([30,20],2);
 
-    try {
-      var map = L.map('map').setView([30, 20], 2);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+maxZoom:19
+}).addTo(map);
 
-      // Biztosan működő csempék (korábban nálad is ment)
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '© OpenStreetMap'
-      }).addTo(map);
+/* ==== TESZT INCIDENT ==== */
+var marker = L.circleMarker([31.5,34.75],{
+radius:8,
+color:"red",
+fillColor:"red",
+fillOpacity:0.9
+}).addTo(map);
 
-    } catch (e) {
-      showErr("JS hiba: " + (e && e.message ? e.message : e));
-    }
-  </script>
+marker.bindPopup(
+"<b>OSINT INCIDENT</b><br>"+
+"Location: Gaza<br>"+
+"Type: Rocket fire<br>"+
+"Date: 2026"
+);
+</script>
 
 </body>
 </html>
