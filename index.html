@@ -2,7 +2,7 @@
 <html lang="hu">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>OSINT Terror Map</title>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
@@ -14,7 +14,7 @@ html,body{height:100%;margin:0;background:#0b0f14;font-family:Arial}
 .title{
 position:fixed;z-index:9999;top:18px;left:50%;
 transform:translateX(-50%);
-color:#e6edf3;font-size:28px;font-weight:700;
+color:#e6edf3;font-size:26px;font-weight:700;
 letter-spacing:4px;background:rgba(0,0,0,0.55);
 padding:10px 16px;border-radius:10px;
 border:1px solid rgba(255,255,255,0.10);
@@ -22,11 +22,24 @@ border:1px solid rgba(255,255,255,0.10);
 
 .panel{
 position:fixed;z-index:9999;top:78px;left:18px;
-width:260px;color:#e6edf3;
+width:280px;color:#e6edf3;
 background:rgba(0,0,0,0.55);
 padding:14px 16px;border-radius:12px;
 border:1px solid rgba(255,255,255,0.10);
 font-size:13px;line-height:1.4;
+}
+
+.sliderBox{
+position:fixed;
+bottom:20px;
+left:50%;
+transform:translateX(-50%);
+z-index:9999;
+background:rgba(0,0,0,0.6);
+padding:12px 18px;
+border-radius:12px;
+color:white;
+border:1px solid rgba(255,255,255,0.1);
 }
 </style>
 </head>
@@ -35,12 +48,17 @@ font-size:13px;line-height:1.4;
 <div class="title">OSINT TERROR MAP</div>
 
 <div class="panel">
-<b>REALTIME MONITOR</b><br>
-● Source: OSINT auto feed<br>
-● Mode: LIVE<br>
+<b>TIME ANALYSIS</b><br>
+Use slider to filter events
 </div>
 
 <div id="map"></div>
+
+<div class="sliderBox">
+Year:
+<input type="range" min="2025" max="2026" value="2025" id="yearSlider">
+<span id="yearLabel">2025</span>
+</div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
@@ -51,32 +69,43 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
 maxZoom:19
 }).addTo(map);
 
-/* ===== LOAD INCIDENTS ===== */
+let markers=[];
+
+function loadData(year){
+markers.forEach(m=>map.removeLayer(m));
+markers=[];
+
 fetch("incidents.json")
 .then(r=>r.json())
 .then(data=>{
 data.forEach(ev=>{
 
-let color="red";
-if(ev.type==="shooting") color="orange";
-if(ev.type==="bomb") color="yellow";
+if(!ev.date || ev.date.substring(0,4) < year) return;
 
 var m=L.circleMarker([ev.lat,ev.lon],{
-radius:8,
-color:color,
-fillColor:color,
-fillOpacity:0.9
+radius:7,
+color:"red",
+fillColor:"red",
+fillOpacity:0.85
 }).addTo(map);
 
 m.bindPopup(
 "<b>"+ev.title+"</b><br>"+
 ev.location+"<br>"+
-ev.date+"<br>"+
-"<a href='"+ev.source+"' target='_blank'>source</a>"
+ev.date
 );
 
+markers.push(m);
 });
 });
+}
+
+loadData("2025");
+
+document.getElementById("yearSlider").oninput=function(){
+document.getElementById("yearLabel").innerText=this.value;
+loadData(this.value);
+}
 </script>
 
 </body>
