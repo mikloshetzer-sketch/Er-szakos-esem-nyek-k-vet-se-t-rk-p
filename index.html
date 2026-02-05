@@ -1,100 +1,331 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="hu">
 <head>
-<meta charset="utf-8" />
-<title>OSINT Terror Map</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>OSINT Terror Map</title>
 
-<link
-  rel="stylesheet"
-  href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-/>
+  <!-- Leaflet -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 
-<style>
-html, body { margin:0; padding:0; height:100%; background:#0e1114; }
-#map { height:100%; width:100%; }
+  <!-- MarkerCluster -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css"/>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css"/>
 
-.header {
-  position:absolute;
-  top:20px;
-  left:50%;
-  transform:translateX(-50%);
-  background:rgba(0,0,0,0.55);
-  color:#e5e7eb;
-  padding:14px 28px;
-  border-radius:10px;
-  font-size:26px;
-  letter-spacing:2px;
-  z-index:1000;
-}
+  <style>
+    html, body { height:100%; margin:0; background:#0e1114; font-family:system-ui, -apple-system, Segoe UI, Roboto, Arial; }
+    #map { height:100%; width:100%; }
 
-.debug {
-  position:absolute;
-  top:90px;
-  left:20px;
-  background:rgba(0,0,0,0.55);
-  color:#d1d5db;
-  padding:14px;
-  border-radius:10px;
-  font-size:13px;
-  z-index:1000;
-  width:260px;
-}
-</style>
+    .header {
+      position:absolute; top:18px; left:50%; transform:translateX(-50%);
+      background:rgba(0,0,0,0.55);
+      color:#e5e7eb;
+      padding:12px 22px;
+      border-radius:12px;
+      font-size:26px;
+      letter-spacing:2px;
+      z-index:1000;
+      backdrop-filter: blur(6px);
+      box-shadow: 0 10px 30px rgba(0,0,0,.25);
+      user-select:none;
+    }
+
+    .panel {
+      position:absolute; left:18px; top:90px;
+      width:300px;
+      background:rgba(0,0,0,0.55);
+      color:#e5e7eb;
+      padding:14px 14px;
+      border-radius:12px;
+      z-index:1000;
+      backdrop-filter: blur(6px);
+      box-shadow: 0 10px 30px rgba(0,0,0,.25);
+      font-size:13px;
+      line-height:1.35;
+    }
+    .panel b { letter-spacing:.5px; }
+    .muted { color:#cbd5e1; opacity:.95; }
+
+    .sliderWrap{
+      position:absolute;
+      left:50%;
+      bottom:18px;
+      transform:translateX(-50%);
+      z-index:1000;
+      background:rgba(0,0,0,0.55);
+      color:#e5e7eb;
+      padding:10px 14px;
+      border-radius:12px;
+      backdrop-filter: blur(6px);
+      box-shadow: 0 10px 30px rgba(0,0,0,.25);
+      display:flex;
+      gap:12px;
+      align-items:center;
+      min-width: 320px;
+      max-width: 560px;
+    }
+    .sliderWrap label { white-space:nowrap; font-size:13px; }
+    .sliderWrap input[type="range"] { width:280px; }
+    .pill {
+      background:rgba(255,255,255,0.10);
+      padding:4px 10px;
+      border-radius:999px;
+      font-size:13px;
+      min-width:64px;
+      text-align:center;
+    }
+
+    /* Popup szebb olvashatóság */
+    .leaflet-popup-content { font-size:13px; line-height:1.35; }
+    .popupTitle { font-weight:700; margin-bottom:6px; }
+    .kv { margin:2px 0; }
+    .kv b { font-weight:700; }
+    .src a { color:#2563eb; text-decoration:underline; }
+  </style>
 </head>
 
 <body>
+  <div class="header">OSINT TERROR MAP</div>
+  <div class="panel" id="debug">Loading…</div>
 
-<div class="header">OSINT TERROR MAP</div>
-<div class="debug" id="debug">Loading…</div>
-<div id="map"></div>
+  <div class="sliderWrap" id="sliderWrap" style="display:none;">
+    <label>Year:</label>
+    <input id="yearSlider" type="range" min="2000" max="2000" step="1" value="2000">
+    <div class="pill" id="yearLabel">—</div>
+  </div>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <div id="map"></div>
 
-<script>
-const map = L.map("map").setView([20, 0], 2);
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
 
-L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-  attribution: "© OpenStreetMap"
-}).addTo(map);
+  <script>
+    // --- MAP ---
+    const map = L.map("map", { worldCopyJump:true }).setView([20, 0], 2);
 
-fetch("incidents.json")
-  .then(r => r.json())
-  .then(data => {
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: "© OpenStreetMap"
+    }).addTo(map);
 
-    document.getElementById("debug").innerHTML = `
-      <b>DEBUG STATUS</b><br>
-      Records: ${data.length}<br>
-      Source: GDELT<br>
-      Mode: named events
-    `;
-
-    data.forEach(e => {
-
-      if (!e.lat || !e.lon) return;
-
-      const popup = `
-        <b>${e.title || "Security incident"}</b><br>
-        <small>${e.date || "unknown date"}</small><br><br>
-        <b>Location:</b> ${e.location || "unknown"}<br>
-        <b>Source:</b> ${e.source || "unknown"}<br>
-        ${e.url ? `<a href="${e.url}" target="_blank">Open source</a>` : ""}
-      `;
-
-      L.circleMarker([e.lat, e.lon], {
-        radius:6,
-        color:"#ef4444",
-        fillOpacity:0.85
-      }).addTo(map).bindPopup(popup);
-
+    // Cluster réteg
+    const clusters = L.markerClusterGroup({
+      showCoverageOnHover: false,
+      spiderfyOnMaxZoom: true,
+      disableClusteringAtZoom: 8
     });
+    map.addLayer(clusters);
 
-  })
-  .catch(err => {
-    document.getElementById("debug").innerHTML =
-      "ERROR loading incidents.json";
-    console.error(err);
-  });
-</script>
+    // --- HELPERS: többféle JSON-séma kezelése ---
+    function pick(obj, keys) {
+      for (const k of keys) {
+        if (obj && obj[k] !== undefined && obj[k] !== null && String(obj[k]).trim() !== "") return obj[k];
+      }
+      return null;
+    }
 
+    function parseDateAny(e) {
+      // Lehetséges mezők: date, day, datetime, timestamp, sqlDate, etc.
+      const raw =
+        pick(e, ["date","day","datetime","timestamp","time","event_date","SQLDATE","sqldate","DATE","Date"]);
+      if (!raw) return null;
+
+      // Ha már YYYY-MM-DD
+      if (typeof raw === "string" && /^\d{4}-\d{2}-\d{2}$/.test(raw.trim())) return raw.trim();
+
+      // Ha YYYYMMDD
+      if (typeof raw === "string" && /^\d{8}$/.test(raw.trim())) {
+        const s = raw.trim();
+        return `${s.slice(0,4)}-${s.slice(4,6)}-${s.slice(6,8)}`;
+      }
+
+      // Ha epoch
+      if (typeof raw === "number") {
+        const d = new Date(raw);
+        if (!isNaN(d)) return d.toISOString().slice(0,10);
+      }
+      if (typeof raw === "string") {
+        const d = new Date(raw);
+        if (!isNaN(d)) return d.toISOString().slice(0,10);
+      }
+      return null;
+    }
+
+    function yearOf(e) {
+      const d = parseDateAny(e);
+      if (!d) return null;
+      return Number(d.slice(0,4));
+    }
+
+    function titleOf(e) {
+      // GDELT-szerű és saját sémák
+      return pick(e, [
+        "title","name","event","summary","headline","Event","event_name",
+        "location_name","place","where","loc","Location"
+      ]) || "Security incident";
+    }
+
+    function urlOf(e) {
+      return pick(e, ["url","sourceUrl","source_url","link","SOURCEURL","source","SourceURL"]);
+    }
+
+    function sourceOf(e) {
+      // lehet forrás domain vagy org mező
+      return pick(e, ["source","source_name","publisher","domain","SOURCE","Source","news_source"]) || null;
+    }
+
+    function locationOf(e) {
+      // ha nincs külön, akkor a title sokszor tartalmaz várost/országot – azt is visszaadjuk.
+      return pick(e, ["location","loc","place","where","country","Country","city","City","region","Region"]) || null;
+    }
+
+    function coordsOf(e) {
+      const lat = pick(e, ["lat","latitude","Lat","LAT","y"]);
+      const lon = pick(e, ["lon","lng","longitude","Lon","LON","x"]);
+      if (lat === null || lon === null) return null;
+      const la = Number(lat), lo = Number(lon);
+      if (!isFinite(la) || !isFinite(lo)) return null;
+      if (Math.abs(la) > 90 || Math.abs(lo) > 180) return null;
+      return [la, lo];
+    }
+
+    function buildPopup(e) {
+      const t = titleOf(e);
+      const d = parseDateAny(e) || "unknown date";
+      const loc = locationOf(e) || "unknown";
+      const src = sourceOf(e) || "unknown";
+      const u = urlOf(e);
+
+      // Ha nincs külön location mező, de a title lokáció jellegű, akkor azt is megmutatjuk
+      const locLine = (loc === "unknown" && t && t !== "Security incident")
+        ? t
+        : loc;
+
+      return `
+        <div class="popupTitle">${escapeHtml(t)}</div>
+        <div class="kv"><b>Date:</b> ${escapeHtml(d)}</div>
+        <div class="kv"><b>Location:</b> ${escapeHtml(locLine)}</div>
+        <div class="kv"><b>Source:</b> ${escapeHtml(src)}</div>
+        ${u ? `<div class="kv src"><a href="${escapeAttr(u)}" target="_blank" rel="noopener">Open source</a></div>` : ""}
+      `;
+    }
+
+    function escapeHtml(s) {
+      return String(s)
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+    function escapeAttr(s) {
+      return String(s).replaceAll('"', "%22");
+    }
+
+    // --- STATE ---
+    let all = [];
+    let years = [];
+    let currentYear = null;
+
+    function render(year) {
+      clusters.clearLayers();
+
+      const filtered = all.filter(e => {
+        const y = yearOf(e);
+        return y === year;
+      });
+
+      let hasCoords = 0;
+      let uniqueApprox = new Set();
+
+      for (const e of filtered) {
+        const c = coordsOf(e);
+        if (!c) continue;
+        hasCoords++;
+
+        // kb. egyediség debughoz
+        uniqueApprox.add(`${Math.round(c[0]*1000)/1000},${Math.round(c[1]*1000)/1000}`);
+
+        const marker = L.circleMarker(c, {
+          radius: 6,
+          color: "#ef4444",
+          fillColor: "#ef4444",
+          fillOpacity: 0.85,
+          weight: 1
+        }).bindPopup(buildPopup(e), { maxWidth: 420 });
+
+        clusters.addLayer(marker);
+      }
+
+      document.getElementById("debug").innerHTML = `
+        <b>DEBUG STATUS</b><br>
+        <span class="muted">Year filter:</span> ${year}<br>
+        <span class="muted">JSON load:</span> OK<br>
+        <span class="muted">Total records:</span> ${all.length}<br>
+        <span class="muted">Visible (year-matched):</span> ${filtered.length}<br>
+        <span class="muted">With coordinates:</span> ${hasCoords}<br>
+        <span class="muted">Unique coords (~0.001):</span> ${uniqueApprox.size}<br>
+        <span class="muted">Source:</span> GDELT<br>
+        <span class="muted">Mode:</span> clustered + year slider
+      `;
+    }
+
+    function initSlider() {
+      const wrap = document.getElementById("sliderWrap");
+      const slider = document.getElementById("yearSlider");
+      const label = document.getElementById("yearLabel");
+
+      years = Array.from(new Set(all.map(yearOf).filter(y => y && isFinite(y)))).sort((a,b)=>a-b);
+
+      // ha nincs év, akkor nincs slider
+      if (!years.length) {
+        wrap.style.display = "none";
+        currentYear = new Date().getFullYear();
+        render(currentYear);
+        return;
+      }
+
+      // alap év: max év
+      currentYear = years[years.length - 1];
+
+      slider.min = years[0];
+      slider.max = years[years.length - 1];
+      slider.value = currentYear;
+      label.textContent = currentYear;
+
+      wrap.style.display = "flex";
+
+      slider.addEventListener("input", () => {
+        const y = Number(slider.value);
+        label.textContent = y;
+        render(y);
+      });
+
+      render(currentYear);
+    }
+
+    // --- LOAD DATA ---
+    fetch("incidents.json", { cache: "no-store" })
+      .then(r => {
+        if (!r.ok) throw new Error("incidents.json HTTP " + r.status);
+        return r.json();
+      })
+      .then(data => {
+        // Lehet, hogy {records:[...]} formátum
+        if (Array.isArray(data)) all = data;
+        else if (data && Array.isArray(data.records)) all = data.records;
+        else if (data && Array.isArray(data.data)) all = data.data;
+        else all = [];
+
+        initSlider();
+      })
+      .catch(err => {
+        console.error(err);
+        document.getElementById("debug").innerHTML = `
+          <b>DEBUG STATUS</b><br>
+          <span style="color:#fca5a5">ERROR loading incidents.json</span><br>
+          ${escapeHtml(err.message || String(err))}
+        `;
+      });
+  </script>
 </body>
 </html>
