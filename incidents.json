@@ -126,17 +126,17 @@
     "source": ""
   },
   {
-    "title": "Niger",
-    "date": "2025-01-01",
-    "lat": 16.0,
-    "lon": 8.0,
-    "source": ""
-  },
-  {
     "title": "Taiwan",
     "date": "2025-01-01",
     "lat": 24.0,
     "lon": 121.0,
+    "source": ""
+  },
+  {
+    "title": "Niger",
+    "date": "2025-01-01",
+    "lat": 16.0,
+    "lon": 8.0,
     "source": ""
   },
   {
@@ -196,13 +196,6 @@
     "source": ""
   },
   {
-    "title": "Spain",
-    "date": "2025-01-01",
-    "lat": 40.0,
-    "lon": -4.0,
-    "source": ""
-  },
-  {
     "title": "University Of Arizona, Arizona, United States",
     "date": "2025-01-01",
     "lat": 32.2319,
@@ -252,10 +245,10 @@
     "source": ""
   },
   {
-    "title": "Libya",
+    "title": "Spain",
     "date": "2025-01-01",
-    "lat": 25.0,
-    "lon": 17.0,
+    "lat": 40.0,
+    "lon": -4.0,
     "source": ""
   },
   {
@@ -263,6 +256,13 @@
     "date": "2025-01-01",
     "lat": 22.0,
     "lon": -79.5,
+    "source": ""
+  },
+  {
+    "title": "Libya",
+    "date": "2025-01-01",
+    "lat": 25.0,
+    "lon": 17.0,
     "source": ""
   },
   {
@@ -280,17 +280,17 @@
     "source": ""
   },
   {
-    "title": "Canada",
-    "date": "2025-01-01",
-    "lat": 60.0,
-    "lon": -96.0,
-    "source": ""
-  },
-  {
     "title": "Egypt",
     "date": "2025-01-01",
     "lat": 27.0,
     "lon": 30.0,
+    "source": ""
+  },
+  {
+    "title": "Canada",
+    "date": "2025-01-01",
+    "lat": 60.0,
+    "lon": -96.0,
     "source": ""
   },
   {
@@ -322,13 +322,6 @@
     "source": ""
   },
   {
-    "title": "Oman",
-    "date": "2025-01-01",
-    "lat": 21.0,
-    "lon": 57.0,
-    "source": ""
-  },
-  {
     "title": "Minnesota, United States",
     "date": "2025-01-01",
     "lat": 45.7326,
@@ -336,10 +329,10 @@
     "source": ""
   },
   {
-    "title": "Sweden",
+    "title": "Oman",
     "date": "2025-01-01",
-    "lat": 62.0,
-    "lon": 15.0,
+    "lat": 21.0,
+    "lon": 57.0,
     "source": ""
   },
   {
@@ -357,6 +350,13 @@
     "source": ""
   },
   {
+    "title": "Sweden",
+    "date": "2025-01-01",
+    "lat": 62.0,
+    "lon": 15.0,
+    "source": ""
+  },
+  {
     "title": "Greenland",
     "date": "2025-01-01",
     "lat": 72.0,
@@ -368,13 +368,6 @@
     "date": "2025-01-01",
     "lat": 28.4785,
     "lon": 65.6436,
-    "source": ""
-  },
-  {
-    "title": "Florida, United States",
-    "date": "2025-01-01",
-    "lat": 27.8333,
-    "lon": -81.717,
     "source": ""
   },
   {
@@ -399,6 +392,13 @@
     "source": ""
   },
   {
+    "title": "Florida, United States",
+    "date": "2025-01-01",
+    "lat": 27.8333,
+    "lon": -81.717,
+    "source": ""
+  },
+  {
     "title": "Kaiama, Kwara, Nigeria",
     "date": "2025-01-01",
     "lat": 9.6225,
@@ -406,17 +406,17 @@
     "source": ""
   },
   {
-    "title": "Argentina",
-    "date": "2025-01-01",
-    "lat": -34.0,
-    "lon": -64.0,
-    "source": ""
-  },
-  {
     "title": "Poland",
     "date": "2025-01-01",
     "lat": 52.0,
     "lon": 20.0,
+    "source": ""
+  },
+  {
+    "title": "Argentina",
+    "date": "2025-01-01",
+    "lat": -34.0,
+    "lon": -64.0,
     "source": ""
   },
   {
@@ -511,6 +511,13 @@
     "source": ""
   },
   {
+    "title": "Odessa, Odes'ka Oblast, Ukraine",
+    "date": "2025-01-01",
+    "lat": 46.4639,
+    "lon": 30.7386,
+    "source": ""
+  },
+  {
     "title": "Pennsylvania, United States",
     "date": "2025-01-01",
     "lat": 40.5773,
@@ -522,13 +529,6 @@
     "date": "2025-01-01",
     "lat": 41.0,
     "lon": 20.0,
-    "source": ""
-  },
-  {
-    "title": "Odessa, Odes'ka Oblast, Ukraine",
-    "date": "2025-01-01",
-    "lat": 46.4639,
-    "lon": 30.7386,
     "source": ""
   },
   {
@@ -574,13 +574,6 @@
     "source": ""
   },
   {
-    "title": "Finland",
-    "date": "2025-01-01",
-    "lat": 64.0,
-    "lon": 26.0,
-    "source": ""
-  },
-  {
     "title": "Jakarta, Jakarta Raya, Indonesia",
     "date": "2025-01-01",
     "lat": -6.1744,
@@ -595,24 +588,17 @@
     "source": ""
   },
   {
+    "title": "Finland",
+    "date": "2025-01-01",
+    "lat": 64.0,
+    "lon": 26.0,
+    "source": ""
+  },
+  {
     "title": "Istanbul, Istanbul, Turkey",
     "date": "2025-01-01",
     "lat": 41.0186,
     "lon": 28.9647,
-    "source": ""
-  },
-  {
-    "title": "Croatia",
-    "date": "2025-01-01",
-    "lat": 45.1667,
-    "lon": 15.5,
-    "source": ""
-  },
-  {
-    "title": "Kwara, Tahoua, Niger",
-    "date": "2025-01-01",
-    "lat": 14.1213,
-    "lon": 5.0281,
     "source": ""
   },
   {
@@ -644,10 +630,10 @@
     "source": ""
   },
   {
-    "title": "Ireland",
+    "title": "Caracas, Distrito Federal, Venezuela",
     "date": "2025-01-01",
-    "lat": 53.0,
-    "lon": -8.0,
+    "lat": 10.5,
+    "lon": -66.9167,
     "source": ""
   },
   {
@@ -658,10 +644,17 @@
     "source": ""
   },
   {
-    "title": "Caracas, Distrito Federal, Venezuela",
+    "title": "Kwara, Tahoua, Niger",
     "date": "2025-01-01",
-    "lat": 10.5,
-    "lon": -66.9167,
+    "lat": 14.1213,
+    "lon": 5.0281,
+    "source": ""
+  },
+  {
+    "title": "Croatia",
+    "date": "2025-01-01",
+    "lat": 45.1667,
+    "lon": 15.5,
     "source": ""
   },
   {
@@ -669,13 +662,6 @@
     "date": "2025-01-01",
     "lat": 43.85,
     "lon": 18.3833,
-    "source": ""
-  },
-  {
-    "title": "Netherlands",
-    "date": "2025-01-01",
-    "lat": 52.5,
-    "lon": 5.75,
     "source": ""
   },
   {
@@ -690,6 +676,20 @@
     "date": "2025-01-01",
     "lat": 38.0,
     "lon": 22.4667,
+    "source": ""
+  },
+  {
+    "title": "Netherlands",
+    "date": "2025-01-01",
+    "lat": 52.5,
+    "lon": 5.75,
+    "source": ""
+  },
+  {
+    "title": "Ireland",
+    "date": "2025-01-01",
+    "lat": 53.0,
+    "lon": -8.0,
     "source": ""
   },
   {
@@ -777,13 +777,6 @@
     "source": ""
   },
   {
-    "title": "Nuku, Nigeria (General), Nigeria",
-    "date": "2025-01-01",
-    "lat": 8.5,
-    "lon": 6.9833,
-    "source": ""
-  },
-  {
     "title": "Brussels, Bruxelles-Capitale, Belgium",
     "date": "2025-01-01",
     "lat": 50.8333,
@@ -798,10 +791,24 @@
     "source": ""
   },
   {
+    "title": "District Of Columbia, United States",
+    "date": "2025-01-01",
+    "lat": 38.8964,
+    "lon": -77.0262,
+    "source": ""
+  },
+  {
     "title": "New Jersey, United States",
     "date": "2025-01-01",
     "lat": 40.314,
     "lon": -74.5089,
+    "source": ""
+  },
+  {
+    "title": "Nuku, Nigeria (General), Nigeria",
+    "date": "2025-01-01",
+    "lat": 8.5,
+    "lon": 6.9833,
     "source": ""
   },
   {
@@ -875,13 +882,6 @@
     "source": ""
   },
   {
-    "title": "Lithuania",
-    "date": "2025-01-01",
-    "lat": 56.0,
-    "lon": 24.0,
-    "source": ""
-  },
-  {
     "title": "Congo",
     "date": "2025-01-01",
     "lat": -1.0,
@@ -889,24 +889,17 @@
     "source": ""
   },
   {
-    "title": "District Of Columbia, United States",
-    "date": "2025-01-01",
-    "lat": 38.8964,
-    "lon": -77.0262,
-    "source": ""
-  },
-  {
-    "title": "Chicago, Illinois, United States",
-    "date": "2025-01-01",
-    "lat": 41.85,
-    "lon": -87.6501,
-    "source": ""
-  },
-  {
     "title": "Dnipropetrovsk, Dnipropetrovs'ka Oblast', Ukraine",
     "date": "2025-01-01",
     "lat": 48.463,
     "lon": 35.039,
+    "source": ""
+  },
+  {
+    "title": "Lithuania",
+    "date": "2025-01-01",
+    "lat": 56.0,
+    "lon": 24.0,
     "source": ""
   },
   {
@@ -921,6 +914,20 @@
     "date": "2025-01-01",
     "lat": 12.9894,
     "lon": 7.6006,
+    "source": ""
+  },
+  {
+    "title": "New Delhi, Delhi, India",
+    "date": "2025-01-01",
+    "lat": 28.6,
+    "lon": 77.2,
+    "source": ""
+  },
+  {
+    "title": "Chicago, Illinois, United States",
+    "date": "2025-01-01",
+    "lat": 41.85,
+    "lon": -87.6501,
     "source": ""
   },
   {
@@ -942,13 +949,6 @@
     "date": "2025-01-01",
     "lat": 28.0,
     "lon": 3.0,
-    "source": ""
-  },
-  {
-    "title": "New Delhi, Delhi, India",
-    "date": "2025-01-01",
-    "lat": 28.6,
-    "lon": 77.2,
     "source": ""
   },
   {
@@ -998,6 +998,13 @@
     "date": "2025-01-01",
     "lat": 9.0833,
     "lon": 7.5333,
+    "source": ""
+  },
+  {
+    "title": "Kaduna, Kaduna, Nigeria",
+    "date": "2025-01-01",
+    "lat": 10.5231,
+    "lon": 7.4403,
     "source": ""
   },
   {
@@ -1204,13 +1211,6 @@
     "source": ""
   },
   {
-    "title": "Latvia",
-    "date": "2025-01-01",
-    "lat": 57.0,
-    "lon": 25.0,
-    "source": ""
-  },
-  {
     "title": "Sri Lanka",
     "date": "2025-01-01",
     "lat": 7.0,
@@ -1285,6 +1285,13 @@
     "date": "2025-01-01",
     "lat": 54.5,
     "lon": -6.5,
+    "source": ""
+  },
+  {
+    "title": "Latvia",
+    "date": "2025-01-01",
+    "lat": 57.0,
+    "lon": 25.0,
     "source": ""
   },
   {
@@ -1379,13 +1386,6 @@
     "source": ""
   },
   {
-    "title": "Mali",
-    "date": "2025-01-01",
-    "lat": 17.0,
-    "lon": -4.0,
-    "source": ""
-  },
-  {
     "title": "Nahal Oz, Hadarom, Israel",
     "date": "2025-01-01",
     "lat": 31.4732,
@@ -1411,6 +1411,13 @@
     "date": "2025-01-01",
     "lat": 8.3167,
     "lon": 8.5167,
+    "source": ""
+  },
+  {
+    "title": "Reunion",
+    "date": "2025-01-01",
+    "lat": -21.1,
+    "lon": 55.6,
     "source": ""
   },
   {
@@ -1502,20 +1509,6 @@
     "date": "2025-01-01",
     "lat": -2.0,
     "lon": -77.5,
-    "source": ""
-  },
-  {
-    "title": "Reunion",
-    "date": "2025-01-01",
-    "lat": -21.1,
-    "lon": 55.6,
-    "source": ""
-  },
-  {
-    "title": "Kaduna, Kaduna, Nigeria",
-    "date": "2025-01-01",
-    "lat": 10.5231,
-    "lon": 7.4403,
     "source": ""
   },
   {
@@ -1673,6 +1666,13 @@
     "source": ""
   },
   {
+    "title": "Baghdad, Baghdad, Iraq",
+    "date": "2025-01-01",
+    "lat": 33.3386,
+    "lon": 44.3939,
+    "source": ""
+  },
+  {
     "title": "Palmyra, ?Ims, Syria",
     "date": "2025-01-01",
     "lat": 34.5608,
@@ -1684,13 +1684,6 @@
     "date": "2025-01-01",
     "lat": 4.6,
     "lon": -74.0833,
-    "source": ""
-  },
-  {
-    "title": "Illinois, United States",
-    "date": "2025-01-01",
-    "lat": 40.3363,
-    "lon": -89.0022,
     "source": ""
   },
   {
@@ -1757,6 +1750,13 @@
     "source": ""
   },
   {
+    "title": "Mali",
+    "date": "2025-01-01",
+    "lat": 17.0,
+    "lon": -4.0,
+    "source": ""
+  },
+  {
     "title": "Abu Dhabi, Abu Z\u00b8Aby, United Arab Emirates",
     "date": "2025-01-01",
     "lat": 24.4667,
@@ -1778,13 +1778,6 @@
     "source": ""
   },
   {
-    "title": "Baghdad, Baghdad, Iraq",
-    "date": "2025-01-01",
-    "lat": 33.3386,
-    "lon": 44.3939,
-    "source": ""
-  },
-  {
     "title": "Beirut, Beyrouth, Lebanon",
     "date": "2025-01-01",
     "lat": 33.8719,
@@ -1803,6 +1796,13 @@
     "date": "2025-01-01",
     "lat": 39.0,
     "lon": 35.0,
+    "source": ""
+  },
+  {
+    "title": "Illinois, United States",
+    "date": "2025-01-01",
+    "lat": 40.3363,
+    "lon": -89.0022,
     "source": ""
   },
   {
@@ -1852,13 +1852,6 @@
     "date": "2025-01-01",
     "lat": 52.3667,
     "lon": 9.7167,
-    "source": ""
-  },
-  {
-    "title": "Kaliningrad, Kaliningradskaya Oblast', Russia",
-    "date": "2025-01-01",
-    "lat": 54.7065,
-    "lon": 20.511,
     "source": ""
   },
   {
@@ -1932,20 +1925,6 @@
     "source": ""
   },
   {
-    "title": "West Virginia, United States",
-    "date": "2025-01-01",
-    "lat": 38.468,
-    "lon": -80.9696,
-    "source": ""
-  },
-  {
-    "title": "Lincoln Memorial, District Of Columbia, United States",
-    "date": "2025-01-01",
-    "lat": 38.8893,
-    "lon": -77.05,
-    "source": ""
-  },
-  {
     "title": "Philadelphia, Pennsylvania, United States",
     "date": "2025-01-01",
     "lat": 39.9523,
@@ -2009,6 +1988,13 @@
     "source": ""
   },
   {
+    "title": "Kaliningrad, Kaliningradskaya Oblast', Russia",
+    "date": "2025-01-01",
+    "lat": 54.7065,
+    "lon": 20.511,
+    "source": ""
+  },
+  {
     "title": "Ethiopia",
     "date": "2025-01-01",
     "lat": 8.0,
@@ -2041,6 +2027,13 @@
     "date": "2025-01-01",
     "lat": 21.1098,
     "lon": -157.531,
+    "source": ""
+  },
+  {
+    "title": "Jaintia Hills, Meghalaya, India",
+    "date": "2025-01-01",
+    "lat": 25.5,
+    "lon": 92.25,
     "source": ""
   },
   {
@@ -2090,6 +2083,13 @@
     "date": "2025-01-01",
     "lat": 38.3502,
     "lon": 38.3167,
+    "source": ""
+  },
+  {
+    "title": "West Virginia, United States",
+    "date": "2025-01-01",
+    "lat": 38.468,
+    "lon": -80.9696,
     "source": ""
   },
   {
@@ -2149,13 +2149,6 @@
     "source": ""
   },
   {
-    "title": "South Africa",
-    "date": "2025-01-01",
-    "lat": -30.0,
-    "lon": 26.0,
-    "source": ""
-  },
-  {
     "title": "Pernambuco, Estado De Pernambuco, Brazil",
     "date": "2025-01-01",
     "lat": -8.05,
@@ -2188,13 +2181,6 @@
     "date": "2025-01-01",
     "lat": 15.5881,
     "lon": 32.5342,
-    "source": ""
-  },
-  {
-    "title": "Mexico City, Distrito Federal, Mexico",
-    "date": "2025-01-01",
-    "lat": 19.4342,
-    "lon": -99.1386,
     "source": ""
   },
   {
@@ -2247,17 +2233,17 @@
     "source": ""
   },
   {
+    "title": "Lincoln Memorial, District Of Columbia, United States",
+    "date": "2025-01-01",
+    "lat": 38.8893,
+    "lon": -77.05,
+    "source": ""
+  },
+  {
     "title": "Ankara, Ankara, Turkey",
     "date": "2025-01-01",
     "lat": 39.9272,
     "lon": 32.8644,
-    "source": ""
-  },
-  {
-    "title": "Ohio, United States",
-    "date": "2025-01-01",
-    "lat": 40.3736,
-    "lon": -82.7755,
     "source": ""
   },
   {
@@ -2415,6 +2401,13 @@
     "source": ""
   },
   {
+    "title": "South Africa",
+    "date": "2025-01-01",
+    "lat": -30.0,
+    "lon": 26.0,
+    "source": ""
+  },
+  {
     "title": "Lakemba, New South Wales, Australia",
     "date": "2025-01-01",
     "lat": -33.9167,
@@ -2485,6 +2478,13 @@
     "source": ""
   },
   {
+    "title": "Mexico City, Distrito Federal, Mexico",
+    "date": "2025-01-01",
+    "lat": 19.4342,
+    "lon": -99.1386,
+    "source": ""
+  },
+  {
     "title": "Malaysia",
     "date": "2025-01-01",
     "lat": 2.5,
@@ -2513,13 +2513,6 @@
     "source": ""
   },
   {
-    "title": "Madhya Pradesh, Madhya Pradesh, India",
-    "date": "2025-01-01",
-    "lat": 23.5,
-    "lon": 78.5,
-    "source": ""
-  },
-  {
     "title": "Miaoli, Miaoli Xian, Taiwan",
     "date": "2025-01-01",
     "lat": 24.5643,
@@ -2527,10 +2520,10 @@
     "source": ""
   },
   {
-    "title": "Jaintia Hills, Meghalaya, India",
+    "title": "Sutnga, Meghalaya, India",
     "date": "2025-01-01",
-    "lat": 25.5,
-    "lon": 92.25,
+    "lat": 25.3667,
+    "lon": 92.45,
     "source": ""
   },
   {
@@ -2601,6 +2594,13 @@
     "date": "2025-01-01",
     "lat": 39.0251,
     "lon": 47.0697,
+    "source": ""
+  },
+  {
+    "title": "Ohio, United States",
+    "date": "2025-01-01",
+    "lat": 40.3736,
+    "lon": -82.7755,
     "source": ""
   },
   {
@@ -2720,13 +2720,6 @@
     "date": "2025-01-01",
     "lat": 53.0358,
     "lon": 18.6048,
-    "source": ""
-  },
-  {
-    "title": "Dublin, Dublin, Ireland",
-    "date": "2025-01-01",
-    "lat": 53.3331,
-    "lon": -6.2489,
     "source": ""
   },
   {
@@ -2912,10 +2905,10 @@
     "source": ""
   },
   {
-    "title": "Bhopal, Madhya Pradesh, India",
+    "title": "Madhya Pradesh, Madhya Pradesh, India",
     "date": "2025-01-01",
-    "lat": 23.2667,
-    "lon": 77.4,
+    "lat": 23.5,
+    "lon": 78.5,
     "source": ""
   },
   {
@@ -2923,13 +2916,6 @@
     "date": "2025-01-01",
     "lat": 25.2225,
     "lon": 116.057,
-    "source": ""
-  },
-  {
-    "title": "Sutnga, Meghalaya, India",
-    "date": "2025-01-01",
-    "lat": 25.3667,
-    "lon": 92.45,
     "source": ""
   },
   {
@@ -3269,6 +3255,13 @@
     "source": ""
   },
   {
+    "title": "Dublin, Dublin, Ireland",
+    "date": "2025-01-01",
+    "lat": 53.3331,
+    "lon": -6.2489,
+    "source": ""
+  },
+  {
     "title": "Hamburg, Hamburg, Germany",
     "date": "2025-01-01",
     "lat": 53.55,
@@ -3287,6 +3280,13 @@
     "date": "2025-01-01",
     "lat": 54.1546,
     "lon": 37.4002,
+    "source": ""
+  },
+  {
+    "title": "Riga, Riga, Latvia",
+    "date": "2025-01-01",
+    "lat": 56.95,
+    "lon": 24.1,
     "source": ""
   },
   {
@@ -3336,6 +3336,13 @@
     "date": "2025-01-01",
     "lat": -12.1667,
     "lon": -75.1667,
+    "source": ""
+  },
+  {
+    "title": "Ribeirao Das Neves, Minas Gerais, Brazil",
+    "date": "2025-01-01",
+    "lat": -19.7833,
+    "lon": -44.1,
     "source": ""
   },
   {
@@ -3532,6 +3539,13 @@
     "date": "2025-01-01",
     "lat": 23.1167,
     "lon": 113.25,
+    "source": ""
+  },
+  {
+    "title": "Bhopal, Madhya Pradesh, India",
+    "date": "2025-01-01",
+    "lat": 23.2667,
+    "lon": 77.4,
     "source": ""
   },
   {
@@ -4074,17 +4088,17 @@
     "source": ""
   },
   {
-    "title": "Stockholm, Stockholm, Sweden",
-    "date": "2025-01-01",
-    "lat": 59.3333,
-    "lon": 18.05,
-    "source": ""
-  },
-  {
     "title": "Kumasi, Ashanti, Ghana",
     "date": "2025-01-01",
     "lat": 6.6833,
     "lon": -1.6167,
+    "source": ""
+  },
+  {
+    "title": "Helsinki, Etel\u00e4Uomen L\u00e4I, Finland",
+    "date": "2025-01-01",
+    "lat": 60.1756,
+    "lon": 24.9342,
     "source": ""
   },
   {
@@ -4134,13 +4148,6 @@
     "date": "2025-01-01",
     "lat": -12.9833,
     "lon": -38.5167,
-    "source": ""
-  },
-  {
-    "title": "Ribeirao Das Neves, Minas Gerais, Brazil",
-    "date": "2025-01-01",
-    "lat": -19.7833,
-    "lon": -44.1,
     "source": ""
   },
   {
@@ -4337,13 +4344,6 @@
     "date": "2025-01-01",
     "lat": 11.15,
     "lon": 34.1,
-    "source": ""
-  },
-  {
-    "title": "Borno State, Borno, Nigeria",
-    "date": "2025-01-01",
-    "lat": 11.5,
-    "lon": 13.0,
     "source": ""
   },
   {
@@ -4561,6 +4561,13 @@
     "date": "2025-01-01",
     "lat": 27.0833,
     "lon": 81.4167,
+    "source": ""
+  },
+  {
+    "title": "Sangma, Arunachal Pradesh, India",
+    "date": "2025-01-01",
+    "lat": 28.1333,
+    "lon": 96.7,
     "source": ""
   },
   {
@@ -5369,13 +5376,6 @@
     "source": ""
   },
   {
-    "title": "Ljubljana, Slovenia (General), Slovenia",
-    "date": "2025-01-01",
-    "lat": 46.0553,
-    "lon": 14.5144,
-    "source": ""
-  },
-  {
     "title": "Ampezzo, Friuli-Venezia Giulia, Italy",
     "date": "2025-01-01",
     "lat": 46.4139,
@@ -5593,13 +5593,6 @@
     "source": ""
   },
   {
-    "title": "Gwent, United Kingdom (General), United Kingdom",
-    "date": "2025-01-01",
-    "lat": 51.6667,
-    "lon": -3.0,
-    "source": ""
-  },
-  {
     "title": "Bulava, Khabarovskiy Kray, Russia",
     "date": "2025-01-01",
     "lat": 51.9167,
@@ -5698,27 +5691,6 @@
     "source": ""
   },
   {
-    "title": "Baltic Sea, Oceans (General), Oceans",
-    "date": "2025-01-01",
-    "lat": 56.0,
-    "lon": 18.0,
-    "source": ""
-  },
-  {
-    "title": "Riga, Riga, Latvia",
-    "date": "2025-01-01",
-    "lat": 56.95,
-    "lon": 24.1,
-    "source": ""
-  },
-  {
-    "title": "Gotland, Gotland, Sweden",
-    "date": "2025-01-01",
-    "lat": 57.5,
-    "lon": 18.5,
-    "source": ""
-  },
-  {
     "title": "Eksjo, Jonkopings Lan, Sweden",
     "date": "2025-01-01",
     "lat": 57.6667,
@@ -5740,17 +5712,17 @@
     "source": ""
   },
   {
+    "title": "Stockholm, Stockholm, Sweden",
+    "date": "2025-01-01",
+    "lat": 59.3333,
+    "lon": 18.05,
+    "source": ""
+  },
+  {
     "title": "Tamparuli, Sabah, Malaysia",
     "date": "2025-01-01",
     "lat": 6.1333,
     "lon": 116.267,
-    "source": ""
-  },
-  {
-    "title": "Helsinki, Etel\u00e4Uomen L\u00e4I, Finland",
-    "date": "2025-01-01",
-    "lat": 60.1756,
-    "lon": 24.9342,
     "source": ""
   },
   {
@@ -5765,20 +5737,6 @@
     "date": "2025-01-01",
     "lat": 61.385,
     "lon": -152.268,
-    "source": ""
-  },
-  {
-    "title": "Venetie, Alaska, United States",
-    "date": "2025-01-01",
-    "lat": 67.0139,
-    "lon": -146.419,
-    "source": ""
-  },
-  {
-    "title": "North Slope, Alaska, United States",
-    "date": "2025-01-01",
-    "lat": 69.0,
-    "lon": -152.0,
     "source": ""
   },
   {
@@ -6108,13 +6066,6 @@
     "date": "2025-01-01",
     "lat": -28.5494,
     "lon": -56.0408,
-    "source": ""
-  },
-  {
-    "title": "Villa Elvira, Santiago Del Estero, Argentina",
-    "date": "2025-01-01",
-    "lat": -28.5667,
-    "lon": -64.55,
     "source": ""
   },
   {
@@ -6503,6 +6454,13 @@
     "source": ""
   },
   {
+    "title": "Borno State, Borno, Nigeria",
+    "date": "2025-01-01",
+    "lat": 11.5,
+    "lon": 13.0,
+    "source": ""
+  },
+  {
     "title": "Funtua, Katsina, Nigeria",
     "date": "2025-01-01",
     "lat": 11.5233,
@@ -6825,13 +6783,6 @@
     "source": ""
   },
   {
-    "title": "Paises Bajos, Veracruz-Llave, Mexico",
-    "date": "2025-01-01",
-    "lat": 20.8833,
-    "lon": -97.3333,
-    "source": ""
-  },
-  {
     "title": "Lemyethna, Mandalay, Myanmar",
     "date": "2025-01-01",
     "lat": 21.1667,
@@ -6997,6 +6948,55 @@
     "date": "2025-01-01",
     "lat": 24.1167,
     "lon": 99.3833,
+    "source": ""
+  },
+  {
+    "title": "Tangail, Bangladesh (General), Bangladesh",
+    "date": "2025-01-01",
+    "lat": 24.25,
+    "lon": 89.9167,
+    "source": ""
+  },
+  {
+    "title": "Qingzhou, Guangdong, China",
+    "date": "2025-01-01",
+    "lat": 24.3563,
+    "lon": 114.803,
+    "source": ""
+  },
+  {
+    "title": "Wizarat Al Kharijiyah, Abu Z\u00b8Aby, United Arab Emirates",
+    "date": "2025-01-01",
+    "lat": 24.4219,
+    "lon": 54.4551,
+    "source": ""
+  },
+  {
+    "title": "Imphal, Manipur, India",
+    "date": "2025-01-01",
+    "lat": 24.8167,
+    "lon": 93.95,
+    "source": ""
+  },
+  {
+    "title": "Tamaulipas, Sinaloa, Mexico",
+    "date": "2025-01-01",
+    "lat": 24.9086,
+    "lon": -107.594,
+    "source": ""
+  },
+  {
+    "title": "Sanchong, Hsin-Pei Shih, Taiwan",
+    "date": "2025-01-01",
+    "lat": 25.0686,
+    "lon": 121.492,
+    "source": ""
+  },
+  {
+    "title": "Shihlin, T'ai-Pei, Taiwan",
+    "date": "2025-01-01",
+    "lat": 25.0907,
+    "lon": 121.523,
     "source": ""
   }
 ]
