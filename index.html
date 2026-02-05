@@ -22,11 +22,11 @@ border:1px solid rgba(255,255,255,0.10);
 
 .panel{
 position:fixed;z-index:9999;top:78px;left:18px;
-width:280px;color:#e6edf3;
+width:320px;color:#e6edf3;
 background:rgba(0,0,0,0.55);
 padding:14px 16px;border-radius:12px;
 border:1px solid rgba(255,255,255,0.10);
-font-size:13px;line-height:1.4;
+font-size:13px;line-height:1.5;
 }
 
 .sliderBox{
@@ -41,6 +41,10 @@ border-radius:12px;
 color:white;
 border:1px solid rgba(255,255,255,0.1);
 }
+
+.small{opacity:0.75;font-size:12px;margin-top:6px;white-space:pre-wrap}
+.bad{color:#ff6b6b}
+.good{color:#7CFC90}
 </style>
 </head>
 <body>
@@ -48,8 +52,12 @@ border:1px solid rgba(255,255,255,0.1);
 <div class="title">OSINT TERROR MAP</div>
 
 <div class="panel">
-<b>TIME ANALYSIS</b><br>
-Use slider to filter events
+<b>DEBUG STATUS</b><br>
+Year filter: <span id="yf">2025</span><br>
+JSON load: <span id="jstat">pending</span><br>
+Total records: <span id="tot">?</span><br>
+Visible records: <span id="vis">?</span><br>
+<div class="small" id="msg"></div>
 </div>
 
 <div id="map"></div>
@@ -66,46 +74,101 @@ Year:
 var map = L.map('map').setView([30,20],2);
 
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
-maxZoom:19
+  maxZoom:19
 }).addTo(map);
 
 let markers=[];
+let ALL=[];
 
-function loadData(year){
-markers.forEach(m=>map.removeLayer(m));
-markers=[];
+function setText(id, v){ document.getElementById(id).textContent = v; }
+function setHTML(id, v){ document.getElementById(id).innerHTML = v; }
 
-fetch("incidents.json")
-.then(r=>r.json())
-.then(data=>{
-data.forEach(ev=>{
-
-if(!ev.date || ev.date.substring(0,4) < year) return;
-
-var m=L.circleMarker([ev.lat,ev.lon],{
-radius:7,
-color:"red",
-fillColor:"red",
-fillOpacity:0.85
-}).addTo(map);
-
-m.bindPopup(
-"<b>"+ev.title+"</b><br>"+
-ev.location+"<br>"+
-ev.date
-);
-
-markers.push(m);
-});
-});
+function clearMarkers(){
+  markers.forEach(m=>map.removeLayer(m));
+  markers=[];
 }
 
-loadData("2025");
+function paint(year){
+  clearMarkers();
+  let visible=0;
+
+  ALL.forEach(ev=>{
+    const d = (ev.date || "").toString();
+    const y = d.substring(0,4);
+    const lat = ev.lat;
+    const lon = ev.lon;
+
+    // csak akkor rajzolunk, ha van koordináta
+    if(typeof lat !== "number" || typeof lon !== "number") return;
+    if(y && y < year) return;
+
+    let color="red";
+    if(ev.type==="bomb") color="yellow";
+    if(ev.type==="shooting") color="orange";
+    if(ev.type==="riot") color="violet";
+
+    var m=L.circleMarker([lat,lon],{
+      radius:7,color:color,fillColor:color,fillOpacity:0.85
+    }).addTo(map);
+
+    m.bindPopup(
+      "<b>"+(ev.title||"OSINT event")+"</b><br>"+
+      (ev.location||"") +"<br>"+
+      (ev.date||"")
+    );
+    markers.push(m);
+    visible++;
+  });
+
+  setText("vis", visible);
+}
+
+async function load(){
+  try{
+    // cache-bust hogy ne régi incidents.json jöjjön
+    const url = "incidents.json?v=" + Date.now();
+    const r = await fetch(url);
+    if(!r.ok){
+      setHTML("jstat", "<span class='bad'>HTTP "+r.status+"</span>");
+      setText("msg", "Nem tudtam betölteni: "+url);
+      return;
+    }
+    const data = await r.json();
+
+    // elfogadunk listát vagy objektum.features-t (biztonság)
+    let arr = [];
+    if(Array.isArray(data)) arr = data;
+    else if(data && Array.isArray(data.features)) {
+      // ha véletlen geojson jött, nem a mi formátumunk
+      arr = [];
+      setHTML("msg", "<span class='bad'>A JSON GeoJSON-nek tűnik (features). Nem a várt incidents formátum.</span>");
+    } else {
+      arr = [];
+      setHTML("msg", "<span class='bad'>Ismeretlen JSON struktúra.</span>");
+    }
+
+    ALL = arr;
+    setHTML("jstat", "<span class='good'>OK</span>");
+    setText("tot", ALL.length);
+
+    // gyors diagnózis: hány elemnek van lat/lon number
+    let okCoords = ALL.filter(e => typeof e.lat==="number" && typeof e.lon==="number").length;
+    setHTML("msg", "Koordinátás rekordok: "+okCoords+"\n(ha 0, akkor az incidents.json nem jó formátumú)");
+
+    paint(document.getElementById("yearSlider").value);
+  }catch(e){
+    setHTML("jstat", "<span class='bad'>ERROR</span>");
+    setText("msg", String(e));
+  }
+}
 
 document.getElementById("yearSlider").oninput=function(){
-document.getElementById("yearLabel").innerText=this.value;
-loadData(this.value);
-}
+  document.getElementById("yearLabel").innerText=this.value;
+  document.getElementById("yf").innerText=this.value;
+  paint(this.value);
+};
+
+load();
 </script>
 
 </body>
