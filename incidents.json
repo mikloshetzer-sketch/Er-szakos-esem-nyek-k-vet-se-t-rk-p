@@ -1,10 +1,9 @@
--[
+[
   {
     "id": 1,
     "title": "Hamas rocket attack on Ashkelon",
     "type": "terror_attack",
     "date": "2025-01-02",
-    "year": 2025,
     "location": "Ashkelon, Israel",
     "lat": 31.6688,
     "lon": 34.5743,
@@ -15,7 +14,6 @@
     "title": "ISIS suicide bombing in Mogadishu",
     "type": "terror_attack",
     "date": "2025-01-05",
-    "year": 2025,
     "location": "Mogadishu, Somalia",
     "lat": 2.0469,
     "lon": 45.3182,
@@ -26,7 +24,6 @@
     "title": "Armed clash between militias in Khartoum",
     "type": "armed_conflict",
     "date": "2025-01-10",
-    "year": 2025,
     "location": "Khartoum, Sudan",
     "lat": 15.5007,
     "lon": 32.5599,
@@ -34,10 +31,9 @@
   },
   {
     "id": 4,
-    "title": "Taliban attack on police checkpoint",
+    "title": "Attack on police checkpoint in Kandahar",
     "type": "insurgent_attack",
     "date": "2025-01-12",
-    "year": 2025,
     "location": "Kandahar, Afghanistan",
     "lat": 31.6289,
     "lon": 65.7372,
@@ -45,10 +41,9 @@
   },
   {
     "id": 5,
-    "title": "Hezbollah artillery fire near Lebanese-Israeli border",
+    "title": "Artillery fire near Lebanese-Israeli border",
     "type": "cross_border_fire",
     "date": "2025-01-15",
-    "year": 2025,
     "location": "Southern Lebanon",
     "lat": 33.2721,
     "lon": 35.2033,
@@ -56,10 +51,9 @@
   },
   {
     "id": 6,
-    "title": "Boko Haram raid on village",
+    "title": "Boko Haram raid on village in Borno State",
     "type": "terror_attack",
     "date": "2025-01-18",
-    "year": 2025,
     "location": "Borno State, Nigeria",
     "lat": 11.8333,
     "lon": 13.1500,
