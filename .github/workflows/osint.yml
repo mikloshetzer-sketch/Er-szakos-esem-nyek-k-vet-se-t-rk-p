@@ -1,8 +1,8 @@
-name: OSINT Live Feed
+name: OSINT Live Feed (GDELT timed)
 
 on:
   schedule:
-    - cron: "*/30 * * * *"
+    - cron: "25 6 * * *"   # napi 06:25 UTC
   workflow_dispatch:
 
 jobs:
@@ -13,79 +13,132 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Build incidents.json
+      - name: Build incidents.json from GDELT GEO 2.1 (2025->today)
         run: |
           python - << 'PY'
-          import json, urllib.request, urllib.parse, datetime
+          import json, urllib.request, urllib.parse, datetime as dt
+
+          def fetch(url):
+            req = urllib.request.Request(url, headers={"User-Agent":"osint-terror-map/1.0"})
+            return urllib.request.urlopen(req, timeout=60).read().decode("utf-8", errors="replace").strip()
+
+          # --- Time window: 2025-01-01 -> now (UTC) ---
+          start = "20250101000000"
+          end   = dt.datetime.utcnow().strftime("%Y%m%d%H%M%S")
+
+          # broader query so we don't miss events
+          query = '(terror OR terrorist OR bombing OR bomb OR explosion OR shooting OR gunman OR attack OR assassination OR "car bomb" OR "suicide bombing" OR "roadside bomb")'
+
+          params = {
+              "query": query,
+              "mode": "geo",
+              "format": "json",
+              "maxrecords": "250",
+              "sort": "datedesc",
+              "startdatetime": start,
+              "enddatetime": end
+          }
+
+          url = "https://api.gdeltproject.org/api/v2/geo/geo?" + urllib.parse.urlencode(params)
+          out = []
+          seen = set()
 
           try:
-              query = "terror OR bombing OR explosion OR shooting OR attack"
-              params = {
-                  "query": query,
-                  "mode": "geo",
-                  "format": "json",
-                  "maxrecords": "150",
-                  "sort": "datedesc"
-              }
-
-              url = "https://api.gdeltproject.org/api/v2/geo/geo?" + urllib.parse.urlencode(params)
-              raw = urllib.request.urlopen(url, timeout=60).read().decode("utf-8").strip()
-
-              if raw == "":
-                  raise Exception("Empty GDELT response")
+              raw = fetch(url)
+              if not raw:
+                  raise Exception("Empty response")
 
               data = json.loads(raw)
+              feats = data.get("features") or []
+              if not feats:
+                  raise Exception("No features returned")
 
-              out = []
-              for i,f in enumerate(data.get("features", [])[:100]):
-                  p = f.get("properties", {})
-                  g = f.get("geometry", {})
-                  coords = g.get("coordinates", [0,0])
-
+              for f in feats:
+                  p = f.get("properties") or {}
+                  g = f.get("geometry") or {}
+                  coords = g.get("coordinates") or [None, None]
                   lon, lat = coords[0], coords[1]
-                  if not lat or not lon:
+                  if lat is None or lon is None:
                       continue
 
-                  rawdate = p.get("date","20250101")
-                  date = f"{rawdate[:4]}-{rawdate[4:6]}-{rawdate[6:8]}"
+                  raw_date = (p.get("date") or p.get("seendate") or "")
+                  if raw_date and len(raw_date) >= 8:
+                      date = f"{raw_date[0:4]}-{raw_date[4:6]}-{raw_date[6:8]}"
+                  else:
+                      date = dt.datetime.utcnow().strftime("%Y-%m-%d")
+
+                  # keep 2025+
+                  if date[:4].isdigit() and int(date[:4]) < 2025:
+                      continue
+
+                  source = p.get("url") or "https://www.gdeltproject.org/"
+                  if source in seen:
+                      continue
+                  seen.add(source)
+
+                  title = (
+                      p.get("title")
+                      or p.get("name")
+                      or p.get("description")
+                      or p.get("htmltitle")
+                      or "OSINT incident (GDELT)"
+                  )
+
+                  location = (
+                      p.get("location")
+                      or p.get("geoname")
+                      or p.get("country")
+                      or "Unknown"
+                  )
+
+                  txt = (str(title) + " " + str(p.get("theme",""))).lower()
+                  ev_type = "attack"
+                  if "explos" in txt or "bomb" in txt:
+                      ev_type = "bomb"
+                  elif "shoot" in txt or "gun" in txt:
+                      ev_type = "shooting"
+                  elif "riot" in txt:
+                      ev_type = "riot"
+                  elif "smuggl" in txt or "traffick" in txt:
+                      ev_type = "smuggling"
 
                   out.append({
-                      "id": f"live-{i}",
-                      "title": p.get("name","Conflict event"),
-                      "type": "attack",
+                      "id": f"gdelt-{len(out)+1}",
+                      "title": str(title)[:180],
+                      "type": ev_type,
                       "date": date,
-                      "location": p.get("country","Unknown"),
-                      "lat": lat,
-                      "lon": lon,
-                      "source": p.get("url","https://gdeltproject.org")
+                      "location": location,
+                      "lat": float(lat),
+                      "lon": float(lon),
+                      "source": source
                   })
 
-              if len(out) == 0:
-                  raise Exception("No parsed events")
+                  if len(out) >= 200:
+                      break
 
           except Exception as e:
-              print("GDELT error -> fallback:", e)
+              print("GDELT failed -> fallback:", e)
               out = [{
                   "id":"fallback",
-                  "title":"Live feed temporary fallback",
-                  "type":"conflict",
-                  "date":datetime.datetime.utcnow().strftime("%Y-%m-%d"),
+                  "title":"Live feed temporary fallback (GDELT unavailable)",
+                  "type":"attack",
+                  "date":dt.datetime.utcnow().strftime("%Y-%m-%d"),
                   "location":"Global",
                   "lat":31.5,
                   "lon":34.7,
-                  "source":"https://gdeltproject.org"
+                  "source":"https://www.gdeltproject.org/"
               }]
 
-          with open("incidents.json","w",encoding="utf-8") as f:
-              json.dump(out,f,indent=2,ensure_ascii=False)
+          with open("incidents.json", "w", encoding="utf-8") as f:
+              json.dump(out, f, ensure_ascii=False, indent=2)
 
-          print("Events:",len(out))
+          print("Events written:", len(out))
           PY
 
-      - name: Commit
+      - name: Commit and push
         run: |
           git config user.name "osint-bot"
-          git config user.email "actions@github.com"
+          git config user.email "actions@users.noreply.github.com"
           git add incidents.json
-          git commit -m "auto live update" || echo "no change"
+          git commit -m "osint: gdelt timed update" || echo "No changes to commit"
           git push
