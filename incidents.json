@@ -1,0 +1,12 @@
+[
+  {
+    "id": "test-001",
+    "date": "2025-01-01",
+    "title": "OSINT TEST INCIDENT",
+    "type": "explosion",
+    "lat": 31.5,
+    "lon": 34.75,
+    "location": "Gaza",
+    "source": "https://example.com"
+  }
+]
