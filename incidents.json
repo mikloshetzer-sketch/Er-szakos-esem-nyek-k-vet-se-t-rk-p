@@ -1,12 +1,12 @@
 [
   {
     "id": "fallback",
-    "title": "Live feed temporary fallback",
-    "type": "conflict",
+    "title": "Live feed temporary fallback (GDELT unavailable)",
+    "type": "attack",
     "date": "2026-02-05",
     "location": "Global",
     "lat": 31.5,
     "lon": 34.7,
-    "source": "https://gdeltproject.org"
+    "source": "https://www.gdeltproject.org/"
   }
 ]
