@@ -1,183 +1,99 @@
 <!DOCTYPE html>
 <html lang="hu">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="utf-8" />
 <title>OSINT Terror Map</title>
 
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css"/>
-<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css"/>
+<link
+  rel="stylesheet"
+  href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+/>
 
 <style>
-html,body{height:100%;margin:0;background:#0b0f14;font-family:Arial}
-#map{height:100vh}
+html, body { margin:0; padding:0; height:100%; background:#0e1114; }
+#map { height:100%; width:100%; }
 
-.title{
-position:fixed;z-index:9999;top:18px;left:50%;
-transform:translateX(-50%);
-color:#e6edf3;font-size:26px;font-weight:700;
-letter-spacing:4px;background:rgba(0,0,0,0.55);
-padding:10px 16px;border-radius:10px;
-border:1px solid rgba(255,255,255,0.10);
+.header {
+  position:absolute;
+  top:20px;
+  left:50%;
+  transform:translateX(-50%);
+  background:rgba(0,0,0,0.55);
+  color:#e5e7eb;
+  padding:14px 28px;
+  border-radius:10px;
+  font-size:26px;
+  letter-spacing:2px;
+  z-index:1000;
 }
 
-.panel{
-position:fixed;z-index:9999;top:78px;left:18px;
-width:320px;color:#e6edf3;
-background:rgba(0,0,0,0.55);
-padding:14px 16px;border-radius:12px;
-border:1px solid rgba(255,255,255,0.10);
-font-size:13px;line-height:1.5;
+.debug {
+  position:absolute;
+  top:90px;
+  left:20px;
+  background:rgba(0,0,0,0.55);
+  color:#d1d5db;
+  padding:14px;
+  border-radius:10px;
+  font-size:13px;
+  z-index:1000;
+  width:260px;
 }
-
-.sliderBox{
-position:fixed;bottom:20px;left:50%;
-transform:translateX(-50%);
-z-index:9999;background:rgba(0,0,0,0.6);
-padding:12px 18px;border-radius:12px;color:white;
-border:1px solid rgba(255,255,255,0.1);
-}
-
-.small{opacity:0.75;font-size:12px;margin-top:6px;white-space:pre-wrap}
-.bad{color:#ff6b6b}
-.good{color:#7CFC90}
 </style>
 </head>
+
 <body>
 
-<div class="title">OSINT TERROR MAP</div>
-
-<div class="panel">
-<b>DEBUG STATUS</b><br>
-Year filter: <span id="yf">2025</span><br>
-JSON load: <span id="jstat">pending</span><br>
-Total records: <span id="tot">?</span><br>
-Visible records: <span id="vis">?</span><br>
-<div class="small" id="msg"></div>
-</div>
-
+<div class="header">OSINT TERROR MAP</div>
+<div class="debug" id="debug">Loading…</div>
 <div id="map"></div>
 
-<div class="sliderBox">
-Year:
-<input type="range" min="2025" max="2026" value="2025" id="yearSlider">
-<span id="yearLabel">2025</span>
-</div>
-
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
 
 <script>
-var map = L.map('map').setView([30,20],2);
+const map = L.map("map").setView([20, 0], 2);
 
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
-  maxZoom:19
+L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+  attribution: "© OpenStreetMap"
 }).addTo(map);
 
-let ALL = [];
-let cluster = L.markerClusterGroup({
-  disableClusteringAtZoom: 7,
-  showCoverageOnHover: false,
-  spiderfyOnMaxZoom: true
-});
-map.addLayer(cluster);
+fetch("incidents.json")
+  .then(r => r.json())
+  .then(data => {
 
-function setText(id, v){ document.getElementById(id).textContent = v; }
-function setHTML(id, v){ document.getElementById(id).innerHTML = v; }
+    document.getElementById("debug").innerHTML = `
+      <b>DEBUG STATUS</b><br>
+      Records: ${data.length}<br>
+      Source: GDELT<br>
+      Mode: named events
+    `;
 
-function colorFor(type){
-  if(type==="bomb") return "yellow";
-  if(type==="shooting") return "orange";
-  if(type==="riot") return "violet";
-  return "red";
-}
+    data.forEach(e => {
 
-function paint(year){
-  cluster.clearLayers();
-  let visible=0;
+      if (!e.lat || !e.lon) return;
 
-  ALL.forEach(ev=>{
-    const d = (ev.date || "").toString();
-    const y = d.substring(0,4);
-    const lat = ev.lat;
-    const lon = ev.lon;
+      const popup = `
+        <b>${e.title || "Security incident"}</b><br>
+        <small>${e.date || "unknown date"}</small><br><br>
+        <b>Location:</b> ${e.location || "unknown"}<br>
+        <b>Source:</b> ${e.source || "unknown"}<br>
+        ${e.url ? `<a href="${e.url}" target="_blank">Open source</a>` : ""}
+      `;
 
-    if(typeof lat !== "number" || typeof lon !== "number") return;
-    if(y && y < year) return;
+      L.circleMarker([e.lat, e.lon], {
+        radius:6,
+        color:"#ef4444",
+        fillOpacity:0.85
+      }).addTo(map).bindPopup(popup);
 
-    const c = colorFor(ev.type);
-
-    // circleMarker helyett sima marker + divIcon, hogy clusterelhető legyen
-    const icon = L.divIcon({
-      className: "",
-      html: `<div style="
-        width:12px;height:12px;border-radius:50%;
-        background:${c};box-shadow:0 0 0 2px rgba(0,0,0,0.35);
-      "></div>`,
-      iconSize: [12,12],
-      iconAnchor: [6,6]
     });
 
-    const m = L.marker([lat,lon], {icon});
-
-    m.bindPopup(
-      "<b>"+(ev.title||"OSINT event")+"</b><br>"+
-      (ev.location||"") +"<br>"+
-      (ev.date||"") +"<br>"+
-      (ev.source ? "<a href='"+ev.source+"' target='_blank'>source</a>" : "")
-    );
-
-    cluster.addLayer(m);
-    visible++;
+  })
+  .catch(err => {
+    document.getElementById("debug").innerHTML =
+      "ERROR loading incidents.json";
+    console.error(err);
   });
-
-  setText("vis", visible);
-}
-
-async function load(){
-  try{
-    const url = "incidents.json?v=" + Date.now(); // cache-bust
-    const r = await fetch(url);
-    if(!r.ok){
-      setHTML("jstat", "<span class='bad'>HTTP "+r.status+"</span>");
-      setText("msg", "Nem tudtam betölteni: "+url);
-      return;
-    }
-    const data = await r.json();
-    ALL = Array.isArray(data) ? data : [];
-    setHTML("jstat", "<span class='good'>OK</span>");
-    setText("tot", ALL.length);
-
-    // diagnózis: egyedi koordináták száma
-    const uniq = new Set();
-    let okCoords = 0;
-    for(const e of ALL){
-      if(typeof e.lat==="number" && typeof e.lon==="number"){
-        okCoords++;
-        uniq.add(e.lat.toFixed(3)+","+e.lon.toFixed(3));
-      }
-    }
-    setHTML("msg",
-      "Koordinátás rekordok: "+okCoords+
-      "\nEgyedi koordináták (~0.001°): "+uniq.size+
-      "\nHa uniq=1, akkor minden pont egy helyre esik (ezért látszott 1 pötty)."
-    );
-
-    paint(document.getElementById("yearSlider").value);
-  }catch(e){
-    setHTML("jstat", "<span class='bad'>ERROR</span>");
-    setText("msg", String(e));
-  }
-}
-
-document.getElementById("yearSlider").oninput=function(){
-  document.getElementById("yearLabel").innerText=this.value;
-  document.getElementById("yf").innerText=this.value;
-  paint(this.value);
-};
-
-load();
 </script>
 
 </body>
