@@ -1,16 +1,9 @@
-name: OSINT Live Feed (GDELT GEO) - 2025 + 2026 Jan
+name: OSINT Live Feed (GDELT GEO)
 
 on:
-  workflow_dispatch:
   schedule:
-    - cron: "0 */2 * * *"  # 2 óránként (UTC)
-
-permissions:
-  contents: write
-
-concurrency:
-  group: osint-live-feed
-  cancel-in-progress: false
+    - cron: "0 */6 * * *"
+  workflow_dispatch:
 
 jobs:
   update:
@@ -19,174 +12,66 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
-      - name: Set up Python
+      - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: "3.x"
 
-      - name: Build incidents.json from GDELT GEO 2.1 (safe JSON + real titles/urls)
+      - name: Install deps
+        run: pip install requests
+
+      - name: Build incidents.json from GDELT GEO
         run: |
-          python - <<'PY'
-          import json, re, urllib.parse, urllib.request, datetime
-          from collections import OrderedDict
+          python << 'PY'
+          import requests, json, datetime
 
-          # --- Beállítások ---
-          QUERY = '(terror OR terrorism OR "bomb attack" OR bombing OR "suicide attack" OR "mass shooting" OR "gun attack" OR assassination OR "IED")'
+          YEARS = ["2025", "2026"]
 
-          # 2025 teljes év + 2026 január (csúszka miatt)
-          RANGES = [
-            ("2025", "20250101000000", "20251231235959"),
-            ("2026", "20260101000000", "20260131235959"),
-          ]
+          QUERY = '"terror attack" OR bombing OR "suicide attack" OR "mass shooting" OR "gun attack" OR assassination OR IED'
 
-          MAXRECORDS_PER_RANGE = 500  # összesen max ~1000
-          BASE = "https://api.gdeltproject.org/api/v2/geo/geo"
+          incidents = []
 
-          # --- util: vezérlőkarakterek kiszedése (JSON hibák ellen) ---
-          ctrl = re.compile(r"[\x00-\x1F\x7F]")
-          def clean(s):
-            if s is None:
-              return ""
-            if not isinstance(s, str):
-              s = str(s)
-            s = ctrl.sub(" ", s)
-            s = re.sub(r"\s+", " ", s).strip()
-            return s
-
-          def fetch_json(url):
-            req = urllib.request.Request(url, headers={"User-Agent": "osint-bot/1.0"})
-            with urllib.request.urlopen(req, timeout=45) as r:
-              raw = r.read().decode("utf-8", errors="replace")
-            return json.loads(raw), raw[:500]
-
-          def ymd_from_seendate(seendate):
-            # seendate tipikusan: YYYYMMDDTHHMMSSZ vagy YYYYMMDD...
-            if isinstance(seendate, str) and len(seendate) >= 8 and seendate[:8].isdigit():
-              return f"{seendate[0:4]}-{seendate[4:6]}-{seendate[6:8]}"
-            return None
-
-          debug = []
-          debug.append("GDELT GEO 2.1 build debug")
-          debug.append(f"UTC now: {datetime.datetime.utcnow().isoformat()}Z")
-          debug.append(f"Query: {QUERY}")
-          debug.append(f"Ranges: {RANGES}")
-
-          all_items = []
-
-          for year, startdt, enddt in RANGES:
-            params = {
-              "query": QUERY,
-              "format": "json",
-              "mode": "ArtList",
-              "startdatetime": startdt,
-              "enddatetime": enddt,
-              "maxrecords": str(MAXRECORDS_PER_RANGE),
-              "sort": "datedesc"
-            }
-            url = BASE + "?" + urllib.parse.urlencode(params)
-            debug.append("")
-            debug.append(f"URL({year}): {url}")
-
-            try:
-              data, head = fetch_json(url)
-            except Exception as e:
-              debug.append(f"FETCH/PARSE ERROR({year}): {e}")
-              continue
-
-            arts = data.get("articles", []) or []
-            debug.append(f"Articles returned({year}): {len(arts)}")
-
-            for a in arts:
-              title = clean(a.get("title") or "")
-              url_a = clean(a.get("url") or "")
-              domain = clean(a.get("domain") or a.get("sourceCountry") or "")
-              seendate = a.get("seendate") or ""
-              date = ymd_from_seendate(seendate) or (f"{year}-01-01")
-
-              # GEO API: cikkhez gyakran ad koordinátát:
-              lat = a.get("lat")
-              lon = a.get("lon")
-
-              # helynév (ha van)
-              location = clean(a.get("location") or a.get("name") or "")
+          for year in YEARS:
+              url = f"https://api.gdeltproject.org/api/v2/doc/doc?query={QUERY}&mode=ArtList&format=json&maxrecords=250&startdatetime={year}0101000000&enddatetime={year}1231235959"
 
               try:
-                lat_f = float(lat)
-                lon_f = float(lon)
-              except Exception:
-                continue  # koordináta nélkül nem tesszük térképre
+                  data = requests.get(url, timeout=30).json()
+              except:
+                  continue
 
-              item = OrderedDict([
-                ("title", title if title else "GDELT matched article"),
-                ("date", date),
-                ("year", int(date[:4]) if len(date) >= 4 and date[:4].isdigit() else int(year)),
-                ("location", location if location else "unknown"),
-                ("lat", lat_f),
-                ("lon", lon_f),
-                ("source", domain if domain else "unknown"),
-                ("url", url_a if url_a else ""),
-              ])
-              all_items.append(item)
+              articles = data.get("articles", [])
 
-          # Dedup: url alapján, ha nincs url akkor (lat,lon,date,title)
-          seen = set()
-          uniq = []
-          for it in all_items:
-            key = it["url"] or (round(it["lat"], 4), round(it["lon"], 4), it["date"], it["title"])
-            if key in seen:
-              continue
-            seen.add(key)
-            uniq.append(it)
+              for a in articles:
+                  if not a.get("locations"):
+                      continue
 
-          # Max 1000 rekord
-          uniq = uniq[:1000]
+                  loc = a["locations"][0]
 
-          # Mentés
-          with open("incidents.json", "w", encoding="utf-8") as f:
-            json.dump(uniq, f, ensure_ascii=False, indent=2)
+                  incidents.append({
+                      "title": a.get("title"),
+                      "date": a.get("seendate"),
+                      "url": a.get("url"),
+                      "source": a.get("sourcecountry"),
+                      "lat": loc.get("lat"),
+                      "lon": loc.get("lon")
+                  })
 
-          with open("gdelt_debug.txt", "w", encoding="utf-8") as f:
-            f.write("\n".join(debug) + "\n")
-
-          print(f"Usable records with coords: {len(uniq)}")
-
-          # Validálás: biztosan jó JSON legyen
-          with open("incidents.json", "r", encoding="utf-8") as f:
-            json.load(f)
+          if len(incidents) > 0:
+              with open("incidents.json","w",encoding="utf-8") as f:
+                  json.dump(incidents,f,ensure_ascii=False)
           PY
 
-      - name: Decide whether to commit (never overwrite with empty)
-        id: decide
-        run: |
-          python - <<'PY'
-          import json, sys
-          try:
-            with open("incidents.json","r",encoding="utf-8") as f:
-              data = json.load(f)
-          except Exception as e:
-            print("ok=false")
-            print("reason=json_invalid")
-            sys.exit(0)
-
-          if not isinstance(data, list) or len(data) == 0:
-            print("ok=false")
-            print("reason=empty")
-          else:
-            print("ok=true")
-            print(f"reason=records_{len(data)}")
-          PY | tee decision.txt
-
-          OK=$(grep -E "^ok=" decision.txt | tail -n 1 | cut -d= -f2)
-          echo "ok=$OK" >> $GITHUB_OUTPUT
-
-      - name: Commit and push (only if non-empty + valid JSON)
-        if: steps.decide.outputs.ok == 'true'
+      - name: Commit if changed
         run: |
           git config user.name "osint-bot"
-          git config user.email "actions@github.com"
-          git add incidents.json gdelt_debug.txt decision.txt
-          git commit -m "OSINT update (GDELT GEO 2.1)" || exit 0
-          git push
+          git config user.email "bot@users.noreply.github.com"
+
+          git add incidents.json
+
+          if git diff --staged --quiet; then
+            echo "No changes"
+          else
+            git commit -m "OSINT auto update (GDELT GEO)"
+            git push
+          fi
