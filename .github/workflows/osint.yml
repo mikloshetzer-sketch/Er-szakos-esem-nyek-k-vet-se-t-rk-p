@@ -1,9 +1,11 @@
-name: OSINT Live Feed (GDELT)
+name: OSINT Live Feed (GDELT) - Safe Update
 
 on:
   workflow_dispatch:
+
+  # Ha nem akarod, hogy automatikusan fusson, ezt a 2 sort kommenteld ki
   schedule:
-    - cron: "0 */6 * * *"   # 6 óránként (állítható)
+    - cron: "0 * * * *"   # óránként (UTC)
 
 permissions:
   contents: write
@@ -15,166 +17,193 @@ concurrency:
 jobs:
   update:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Setup Python
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
-      - name: Install deps
-        run: |
-          python -m pip install --upgrade pip
-          pip install requests
-
-      - name: Build incidents.json from GDELT (articles)
+      - name: Build incidents.json from GDELT DOC API (best-effort)
         env:
-          MAXRECORDS: "250"     # 250/lekérés (biztonságos)
-          PAGES_PER_YEAR: "4"   # ennyi "oldalt" próbálunk (250*4=1000 rekord/év max)
+          # Ha van GDELT API key-ed / tokened, ide teheted később
+          # GDELT_API_KEY: ${{ secrets.GDELT_API_KEY }}
+          TZ: UTC
         run: |
-          python - << 'PY'
-          import os, json, time
-          import requests
-          from datetime import datetime
+          python - <<'PY'
+          import json, os, sys, urllib.parse, urllib.request, datetime
 
-          MAXRECORDS = int(os.environ.get("MAXRECORDS","250"))
-          PAGES_PER_YEAR = int(os.environ.get("PAGES_PER_YEAR","4"))
+          NOW = datetime.datetime.utcnow()
+          years = [NOW.year-1, NOW.year]  # pl. 2025, 2026 (ha most 2026 van)
+          query = '(terror OR terrorism OR "bomb attack" OR bombing OR "suicide attack" OR "mass shooting" OR "gun attack" OR assassination OR "IED")'
 
-          # Rövidebb, GDELT-kompatibilis query (OR zárójelben)
-          QUERY = '(terror OR terrorism OR "bomb attack" OR bombing OR "suicide attack" OR "mass shooting" OR "IED")'
+          # GDELT DOC 2.1 endpoint
+          # Megjegyzés: a DOC API a cikkekből jön; nem garantált a koordináta minden rekordnál.
+          base = "https://api.gdeltproject.org/api/v2/doc/doc"
 
-          # GDELT DOC 2.1 – cikklistázás (ArtList)
-          # Megjegyzés: a DOC API cikkeket ad (title, seendate, url, domain),
-          # de a koordináta nem mindig garantált; ezért próbálunk "sourceCountry"/"location" mezőket is kinyerni,
-          # és ha nincs, akkor kihagyjuk (különben minden pont 0,0-ra esne).
-          BASE = "https://api.gdeltproject.org/api/v2/doc/doc"
+          debug_lines = []
+          debug_lines.append("GDELT DOC API build debug")
+          debug_lines.append(f"UTC now: {NOW.isoformat()}Z")
+          debug_lines.append(f"Query: {query}")
+          debug_lines.append(f"Years attempted: {years}")
 
-          now = datetime.utcnow()
-          years = [2025, 2026]  # igény szerint bővíthető
+          all_items = []
 
-          incidents = []
+          def fetch(url: str) -> str:
+            req = urllib.request.Request(url, headers={"User-Agent": "osint-bot/1.0"})
+            with urllib.request.urlopen(req, timeout=30) as r:
+              return r.read().decode("utf-8", errors="replace")
 
-          def safe_get(d, *keys, default=None):
-            cur = d
-            for k in keys:
-              if not isinstance(cur, dict) or k not in cur:
-                return default
-              cur = cur[k]
-            return cur
+          # próbálunk évenként kérdezni; start/end dátumot adunk, hogy ne csak jan 1 legyen
+          for y in years:
+            start = f"{y}-01-01"
+            end   = f"{y}-12-31"
 
-          def pick_latlon(article):
-            # Többféle lehetséges struktúra van – megpróbáljuk a tipikus mezőket.
-            # 1) "location" objektum
-            loc = article.get("location")
-            if isinstance(loc, dict):
-              lat = loc.get("lat")
-              lon = loc.get("lon")
-              if isinstance(lat, (int,float)) and isinstance(lon, (int,float)):
-                return lat, lon
-
-            # 2) "locations" lista (ha van)
-            locs = article.get("locations")
-            if isinstance(locs, list) and locs:
-              for l in locs:
-                if isinstance(l, dict):
-                  lat = l.get("lat")
-                  lon = l.get("lon")
-                  if isinstance(lat, (int,float)) and isinstance(lon, (int,float)):
-                    return lat, lon
-
-            # 3) nincs koordináta
-            return None, None
-
-          def fetch_page(startdatetime, enddatetime, startrecord):
             params = {
-              "query": QUERY,
+              "query": query,
               "mode": "ArtList",
               "format": "json",
-              "startdatetime": startdatetime,
-              "enddatetime": enddatetime,
-              "maxrecords": str(MAXRECORDS),
-              "startrecord": str(startrecord),
-              # "sort": "HybridRel"  # opcionális
+              "startdatetime": f"{y}0101000000",
+              "enddatetime": f"{y}1231235959",
+              "maxrecords": "250",
+              "sort": "datedesc",
+              "format": "json"
             }
-            r = requests.get(BASE, params=params, timeout=60)
-            r.raise_for_status()
-            return r.json()
 
-          for year in years:
-            startdt = f"{year}0101000000"
-            # 2026 csak eddig (mostanáig), különben üres/hibás lehet
-            if year == now.year:
-              enddt = now.strftime("%Y%m%d%H%M%S")
-            else:
-              enddt = f"{year}1231235959"
+            url = base + "?" + urllib.parse.urlencode(params)
+            debug_lines.append("")
+            debug_lines.append(f"URL ({y}): {url}")
 
-            startrecord = 1
-            for _ in range(PAGES_PER_YEAR):
+            try:
+              raw = fetch(url)
+            except Exception as e:
+              debug_lines.append(f"FETCH ERROR ({y}): {e}")
+              continue
+
+            # ha a GDELT nem JSON-t ad vissza (pl. hiba HTML-ben), itt elhasalhat
+            try:
+              data = json.loads(raw)
+            except Exception as e:
+              debug_lines.append("JSON parse error:")
+              debug_lines.append(str(e))
+              debug_lines.append("Response head (first 400 chars):")
+              debug_lines.append(raw[:400])
+              continue
+
+            arts = data.get("articles", []) or []
+            debug_lines.append(f"Articles returned ({y}): {len(arts)}")
+
+            for a in arts:
+              # DOC API mezők változhatnak; próbálunk “biztos” mezőket
+              title = a.get("title") or a.get("sourceCountry") or "GDELT article"
+              url_a = a.get("url") or ""
+              seendate = a.get("seendate") or ""
+              # seendate tipikusan "YYYYMMDDTHHMMSSZ" vagy "YYYYMMDD..."
+              # csinálunk belőle YYYY-MM-DD-t ha lehet:
+              date = None
+              if isinstance(seendate, str) and len(seendate) >= 8 and seendate[:8].isdigit():
+                date = f"{seendate[0:4]}-{seendate[4:6]}-{seendate[6:8]}"
+              else:
+                date = start
+
+              # koordináta: DOC API-nál sokszor nincs. Megpróbáljuk több kulcsból.
+              lat = None
+              lon = None
+
+              # néha "socialimage" stb van csak -> nincs koordináta
+              # ha van "locations" lista (ritka), abból próbálunk
+              locs = a.get("locations")
+              if isinstance(locs, list) and locs:
+                # első lokáció
+                loc0 = locs[0] if isinstance(locs[0], dict) else None
+                if loc0:
+                  lat = loc0.get("lat")
+                  lon = loc0.get("lon")
+
+              # néha "geo" jellegű mezők vannak
+              for k_lat, k_lon in [("lat", "lon"), ("latitude", "longitude")]:
+                if lat is None and lon is None:
+                  if k_lat in a and k_lon in a:
+                    lat = a.get(k_lat)
+                    lon = a.get(k_lon)
+
+              # csak akkor vesszük fel, ha van lat/lon és szám
               try:
-                data = fetch_page(startdt, enddt, startrecord)
-              except Exception as e:
-                # ha API-limit / hiba van, kilépünk az évből
-                break
+                lat_f = float(lat)
+                lon_f = float(lon)
+              except Exception:
+                continue
 
-              arts = data.get("articles") or data.get("results") or []
-              if not arts:
-                break
+              item = {
+                "title": title,
+                "date": date,
+                "lat": lat_f,
+                "lon": lon_f,
+                "source": "GDELT DOC API",
+                "url": url_a
+              }
+              all_items.append(item)
 
-              for a in arts:
-                title = a.get("title") or a.get("name") or "GDELT article"
-                url = a.get("url") or a.get("sourceurl") or a.get("shareimage") or ""
-                domain = a.get("domain") or a.get("sourceCommonName") or ""
-                seendate = a.get("seendate") or a.get("datetime") or ""
-                # seendate tipikusan "2025-02-05 12:34:56" vagy ISO – mi YYYY-MM-DD-t rakunk ki
-                date_only = ""
-                if isinstance(seendate, str) and len(seendate) >= 10:
-                  date_only = seendate[:10]
+          debug_lines.append("")
+          debug_lines.append(f"Total usable (with coords): {len(all_items)}")
 
-                lat, lon = pick_latlon(a)
-                if lat is None or lon is None:
-                  continue  # koordináta nélkül nem tesszük térképre
+          # duplikációk csökkentése: url vagy (lat,lon,date,title) alapján
+          seen = set()
+          uniq = []
+          for it in all_items:
+            key = it.get("url") or (round(it["lat"], 4), round(it["lon"], 4), it["date"], it["title"])
+            if key in seen:
+              continue
+            seen.add(key)
+            uniq.append(it)
 
-                incidents.append({
-                  "title": title,
-                  "location": a.get("sourceCountry") or a.get("sourceCountryCode") or a.get("location") or "unknown",
-                  "date": date_only or f"{year}-01-01",
-                  "lat": lat,
-                  "lon": lon,
-                  "source": domain or "GDELT",
-                  "url": url or ""
-                })
-
-              # következő oldal
-              startrecord += MAXRECORDS
-              time.sleep(1.0)
-
-          # ha túl sok lett, vágjuk 1000-re (a térképed debug panelje is ezt mutatja)
-          incidents = incidents[:1000]
+          # max 1000 (hogy ne legyen brutál nagy)
+          uniq = uniq[:1000]
 
           with open("incidents.json", "w", encoding="utf-8") as f:
-            json.dump(incidents, f, ensure_ascii=False, indent=2)
+            json.dump(uniq, f, ensure_ascii=False, indent=2)
 
-          print(f"Built incidents.json with {len(incidents)} records.")
+          with open("gdelt_debug.txt", "w", encoding="utf-8") as f:
+            f.write("\n".join(debug_lines) + "\n")
+
+          print(f"Wrote incidents.json records: {len(uniq)}")
           PY
 
-      - name: Commit and push incidents.json
+      - name: Show incidents.json size
         run: |
-          set -e
-          git config user.name "osint-bot"
-          git config user.email "osint-bot@users.noreply.github.com"
+          ls -lah incidents.json || true
+          head -n 5 incidents.json || true
 
-          # frissítsük a branchet, hogy ne legyen reject
-          git pull --rebase --autostash origin main || true
-
-          git add incidents.json
-          if git diff --cached --quiet; then
-            echo "No changes to commit."
+      # --- A LÉNYEG: NEM ENGEDJÜK, HOGY [] FELÜLÍRJA A JÓ ADATOT ---
+      - name: Check incidents.json is non-empty
+        id: nonempty
+        run: |
+          if [ ! -f incidents.json ]; then
+            echo "ok=false" >> $GITHUB_OUTPUT
+            echo "incidents.json missing"
             exit 0
           fi
 
-          git commit -m "auto: update incidents.json (GDELT)"
-          git push origin main
+          # whitespace nélkül nézzük
+          CONTENT="$(cat incidents.json | tr -d ' \n\r\t')"
+          if [ "$CONTENT" = "[]" ]; then
+            echo "ok=false" >> $GITHUB_OUTPUT
+            echo "incidents.json is empty ([]). Will NOT commit."
+          else
+            echo "ok=true" >> $GITHUB_OUTPUT
+            echo "incidents.json is non-empty. Will commit."
+          fi
+
+      - name: Commit and push (only if non-empty)
+        if: steps.nonempty.outputs.ok == 'true'
+        run: |
+          git config user.name "osint-bot"
+          git config user.email "actions@github.com"
+          git add incidents.json gdelt_debug.txt || true
+          git commit -m "OSINT update (GDELT DOC)" || exit 0
+          git push
