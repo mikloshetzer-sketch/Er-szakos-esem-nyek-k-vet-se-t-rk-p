@@ -1,17 +1,22 @@
-name: OSINT Live Feed (GDELT GEO)
+name: OSINT Live Feed (GDELT SAFE)
 
 on:
   schedule:
     - cron: "0 */6 * * *"
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   update:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
+      - name: Checkout
         uses: actions/checkout@v4
+        with:
+          persist-credentials: true
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -21,57 +26,112 @@ jobs:
       - name: Install deps
         run: pip install requests
 
-      - name: Build incidents.json from GDELT GEO
+      - name: Build incidents.json (safe JSON + never overwrite with empty)
         run: |
           python << 'PY'
-          import requests, json, datetime
+          import json, re, requests, os
 
-          YEARS = ["2025", "2026"]
+          def clean(s):
+              if s is None:
+                  return ""
+              # remove control chars that break JSON parsing in browsers
+              s = re.sub(r'[\x00-\x1f\x7f]', ' ', str(s))
+              s = re.sub(r'\s+', ' ', s).strip()
+              return s[:300]
 
           QUERY = '"terror attack" OR bombing OR "suicide attack" OR "mass shooting" OR "gun attack" OR assassination OR IED'
 
+          def fetch(start, end, maxrecords=250):
+              url = (
+                  "https://api.gdeltproject.org/api/v2/doc/doc"
+                  f"?query={requests.utils.quote(QUERY)}"
+                  f"&mode=ArtList&format=json&maxrecords={maxrecords}"
+                  f"&startdatetime={start}&enddatetime={end}"
+              )
+              r = requests.get(url, timeout=30)
+              r.raise_for_status()
+              return r.json().get("articles", [])
+
           incidents = []
 
-          for year in YEARS:
-              url = f"https://api.gdeltproject.org/api/v2/doc/doc?query={QUERY}&mode=ArtList&format=json&maxrecords=250&startdatetime={year}0101000000&enddatetime={year}1231235959"
-
-              try:
-                  data = requests.get(url, timeout=30).json()
-              except:
+          # 2025 full year
+          for a in fetch("20250101000000", "20251231235959", maxrecords=250):
+              locs = a.get("locations") or []
+              if not locs:
+                  continue
+              loc = locs[0]
+              lat, lon = loc.get("lat"), loc.get("lon")
+              if lat is None or lon is None:
                   continue
 
-              articles = data.get("articles", [])
+              incidents.append({
+                  "title": clean(a.get("title")),
+                  "date": clean(a.get("seendate")),
+                  "location": clean(loc.get("name") or a.get("location") or ""),
+                  "lat": float(lat),
+                  "lon": float(lon),
+                  "source": clean(a.get("url"))  # kattintható forrás
+              })
 
-              for a in articles:
-                  if not a.get("locations"):
-                      continue
+          # 2026 January only
+          for a in fetch("20260101000000", "20260131235959", maxrecords=250):
+              locs = a.get("locations") or []
+              if not locs:
+                  continue
+              loc = locs[0]
+              lat, lon = loc.get("lat"), loc.get("lon")
+              if lat is None or lon is None:
+                  continue
 
-                  loc = a["locations"][0]
+              incidents.append({
+                  "title": clean(a.get("title")),
+                  "date": clean(a.get("seendate")),
+                  "location": clean(loc.get("name") or a.get("location") or ""),
+                  "lat": float(lat),
+                  "lon": float(lon),
+                  "source": clean(a.get("url"))
+              })
 
-                  incidents.append({
-                      "title": a.get("title"),
-                      "date": a.get("seendate"),
-                      "url": a.get("url"),
-                      "source": a.get("sourcecountry"),
-                      "lat": loc.get("lat"),
-                      "lon": loc.get("lon")
-                  })
+          # de-dup by (title+date+lat+lon)
+          seen = set()
+          uniq = []
+          for it in incidents:
+              key = (it["title"], it["date"], round(it["lat"], 4), round(it["lon"], 4))
+              if key in seen:
+                  continue
+              seen.add(key)
+              uniq.append(it)
 
-          if len(incidents) > 0:
-              with open("incidents.json","w",encoding="utf-8") as f:
-                  json.dump(incidents,f,ensure_ascii=False)
+          # Validate JSON and avoid overwriting with empty
+          tmp = "incidents.tmp.json"
+          with open(tmp, "w", encoding="utf-8") as f:
+              json.dump(uniq, f, ensure_ascii=False)
+
+          # sanity check: can we load it back?
+          with open(tmp, "r", encoding="utf-8") as f:
+              test = json.load(f)
+
+          if len(test) < 10:
+              print("Too few records, refusing to overwrite incidents.json")
+              # keep existing incidents.json
+              os.remove(tmp)
+          else:
+              os.replace(tmp, "incidents.json")
+              print("Wrote incidents.json records:", len(test))
           PY
 
-      - name: Commit if changed
+      - name: Commit & push if changed
         run: |
           git config user.name "osint-bot"
           git config user.email "bot@users.noreply.github.com"
 
-          git add incidents.json
+          if [ -f incidents.json ]; then
+            git add incidents.json
+          fi
 
           if git diff --staged --quiet; then
-            echo "No changes"
+            echo "No changes to commit."
           else
-            git commit -m "OSINT auto update (GDELT GEO)"
+            git commit -m "OSINT auto update (GDELT SAFE)"
             git push
           fi
